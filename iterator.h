@@ -2,6 +2,17 @@
 #include "list_linked.h"
 #include <errno.h>
 
+/**
+ * @file iterator.h
+ * @author David Kidane & Felix Agnerdahl
+ * @date --
+ * @brief 
+ * 
+ * 
+ * 
+ * @see https://uppsala.instructure.com/courses/47154/assignments/75644
+ */
+
 
 typedef struct iterator ioopm_list_iterator_t;
 

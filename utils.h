@@ -5,6 +5,16 @@
 #include <strings.h>
 #include <ctype.h>
 
+/**
+ * @file utils.h
+ * @author David Kidane & Felix Agnerdahl
+ * @date --
+ * @brief Utility functions
+ * Utility functions for asking questions of different types.
+ * @see https://uppsala.instructure.com/courses/47154/assignments/75644
+ */
+
+
 typedef union {
     int   int_value;
     float float_value;
