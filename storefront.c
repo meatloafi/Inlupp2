@@ -59,8 +59,9 @@ void event_loop(ioopm_hash_table_t *warehouse)
         switch(input)
         {
             case 1:
-            //ioopm_add_merch
-            printf("TO BE IMPLEMENTED!\n"); break;
+            ioopm_add_merch(warehouse);
+            //printf("TO BE IMPLEMENTED!\n"); 
+            break;
             case 2:
             ioopm_list_merch(warehouse);
             break;
