@@ -16,25 +16,25 @@
 the name of the merchendise serves as its key.
 typedef struct merch merch_t;
 
-/// @brief The shelf is the storage space for a merchendise and is itself an link in a linked list.
+/// @brief The shelf is the storage space for a merchendise and is itself a link in a linked list.
 typedef struct shelf shelf_t;
 
 /// @brief Adds a new item to the warehouse
 /// @param warehouse The warehouse which is being modified by adding merchandise
 /// @param merch The merchandise added to the warehouse
 /// @return The newly added merchandise
-elem_t ioopm_add_merch(ioopm_hash_table_t warehouse, merch_t merch);
+void ioopm_add_merch(ioopm_hash_table_t *warehouse, merch_t merch);
 
 /// @brief Lists all items in the warehouse
 /// @param warehouse The warehouse containing current 
 /// @return prints 20 items at a time, the user can continue to print the next 20 items
-void ioopm_list_merch(ioopm_hash_table_t warehouse);
+void ioopm_list_merch(ioopm_hash_table_t *warehouse);
 
 /// @brief Completely removes an item from the warehouse
 /// @param warehouse The warehouse which is being modified by removing the merch
 /// @param merch The merchandise to be removed
 /// @return The removed merchandise
-elem_t ioopm_remove_merch(ioopm_hash_table_t warehouse, merch_t merch);
+void ioopm_remove_merch(ioopm_hash_table_t *warehouse, merch_t merch);
 
 /// @brief Allows changes to items. Name, description and price. But the name is not allowed to be one that already exists
 /// @param warehouse The warehouse in which the merchandise is stored
@@ -71,6 +71,11 @@ void ioopm_remove_cart(ioopm_hash_table_t cart);
 /// @param quantity The requested quantity of that merchandise
 void ioopm_add_to_cart(ioopm_hash_table_t cart, merch_t merch, size_t quantity);
 
+/// @brief //TODO
+/// @param //TODO
+/// @param //TODO
+/// @param //TODO
+void ioopm_remove_from_cart(ioopm_hash_table_t cart, merch_t merch, size_t quantity);
 
 /// @brief Calculate the cost of all merchandise in a cart
 /// @param cart The cart 
