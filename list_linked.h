@@ -2,6 +2,16 @@
 #include "common.h"
 
 
+/**
+ * @file list_linked.h
+ * @author David Kidane & Felix Agnerdahl
+ * @date --
+ * @brief Dynamic structure: Linked list
+ * A linked list composed of links which in themselves contain elements. These elements all have a number and a pointer.
+ * @see https://uppsala.instructure.com/courses/47154/assignments/75644
+ */
+
+
 typedef bool (*ioopm_predicate)(elem_t key, elem_t value, void *extra);
 typedef void (*ioopm_apply_function)(elem_t key, elem_t *value, void *extra);
 
