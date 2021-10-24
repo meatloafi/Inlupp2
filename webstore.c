@@ -44,13 +44,21 @@ void key_array_destroy(char **keys, size_t size)
 //ask_question_shelf("Shelf: ");
 entry_t *create_merch()
 {
-    char *name = ask_question_string("Name: ");
-    char *desc = ask_question_string("Description: ");
+    char *name_sd = ask_question_string("Name: ");
+    char *desc_sd = ask_question_string("Description: ");
     size_t price = ask_question_int("Price: ");
     int stock = ask_question_int("Quantity: ");
+    char name[255] = {0};
+    char desc[255] = {0};
+    strcat(name, desc_sd);
+    strcat(desc, name_sd);
+    free(name_sd);
+    free(desc_sd);
+    
     ioopm_list_t *location = ioopm_linked_list_create(NULL);
-    char shelf_section = toupper((ask_question_char("Shelf section: ")));
+    char shelf_section = (ask_question_char("Shelf section: "));
     int shelf_number = ask_question_int("Shelf number: ");
+
     shelf_t shelf = { .section = shelf_section, .number = shelf_number};
     ioopm_linked_list_append(location, ptr_elem(&shelf));
 
@@ -61,7 +69,7 @@ entry_t *create_merch()
     merchandise->key = ptr_elem(merch.name);
     merchandise->value = ptr_elem(&merch);
     // merchandise->next = NULL;
-
+    
     return merchandise;
 }
 
@@ -77,92 +85,77 @@ void ioopm_add_merch(ioopm_hash_table_t *warehouse)
 
 
 
-// void ioopm_list_merch(ioopm_hash_table_t *warehouse)
-// {
-//     ioopm_list_t *items = ioopm_hash_table_keys(warehouse);
-//     size_t items_size = ioopm_linked_list_size(items);
-
-//     char **keys = calloc(items_size+1, sizeof(char *));
-//     int i;
-
-//     if (ioopm_linked_list_is_empty(items))
-//     {
-//         printf("The warehouse is empty \n");
-//     }
-//     else
-//     {
-//         for(i = 0; i < items_size; i++) // alla namn på merch till en array
-//     {
-//         keys[i] = ioopm_linked_list_get(items, i).extra;
-//     }
-
-//     for (i = 0; i < items_size; i++)  // printar namnen på all merch
-//     {                                 // TODO: printa 20 items i taget
-//         printf ("%d. %s \n",(i+1), keys[i]);
-//     }
-//     }
-//     key_array_destroy(keys, ioopm_linked_list_size(ioopm_hash_table_keys(warehouse)));
-//     ioopm_linked_list_destroy(items);
-// }
-
 void ioopm_list_merch(ioopm_hash_table_t *warehouse)
 {
-    char **keys = convert_list_array(ioopm_hash_table_keys(warehouse));
-    if (ioopm_linked_list_is_empty(ioopm_hash_table_keys(warehouse)))
+    ioopm_list_t *items = ioopm_hash_table_keys(warehouse);
+    size_t items_size = ioopm_linked_list_size(items);
+
+    char **keys = calloc(items_size+1, sizeof(char *));
+    int i;
+
+    if (ioopm_linked_list_is_empty(items))
     {
         printf("The warehouse is empty \n");
     }
     else
     {
-    for (int i = 0; i < ioopm_hash_table_size(warehouse); i++)  // printar namnen på all merch
+        for(i = 0; i < items_size; i++) // alla namn på merch till en array
+    {
+        keys[i] = ioopm_linked_list_get(items, i).extra;
+    }
+
+    for (i = 0; i < items_size; i++)  // printar namnen på all merch
     {                                 // TODO: printa 20 items i taget
         printf ("%d. %s \n",(i+1), keys[i]);
     }
-
     }
-
-    key_array_destroy(keys, ioopm_hash_table_size(warehouse));
+    free(keys);
+    ioopm_linked_list_destroy(items);
 }
-
-
-// void ioopm_remove_merch(ioopm_hash_table_t *warehouse)
-// {
-//     ioopm_list_t *items = ioopm_hash_table_keys(warehouse);
-//     size_t items_size = ioopm_linked_list_size(items);
-
-//     char **keys = calloc(items_size+1, sizeof(char *));
-//     int i;
-
-//     for(i = 0; i < items_size; i++) // alla namn på merch till en array
-//     {
-//         keys[i] = ioopm_linked_list_get(items, i).extra;
-//     }
-
-//     int input = ask_question_int("Enter the merchendise you wish to remove: "); // ge ett val att inte ta bort något item kanske
-    
-//     elem_t merch_to_remove = {.extra = (void *)keys[input-1]};
-//     printf("You have removed the following merchendise: %s \n", keys[input-1]);
-
-//     ioopm_hash_table_remove(warehouse, merch_to_remove);
-//     free(keys);
-// }
-
-
+ 
 
 
 void ioopm_remove_merch(ioopm_hash_table_t *warehouse)
 {
-    char **keys = convert_list_array(ioopm_hash_table_keys(warehouse));
+    ioopm_list_t *items = ioopm_hash_table_keys(warehouse);
+    size_t items_size = ioopm_linked_list_size(items);
 
-    int input = ask_question_int("Enter the merchendise you wish to remove: "); // ge ett val att inte ta bort något item kanske
-    
-    elem_t merch_to_remove = ptr_elem(keys[input-1]);
-    printf("You have removed the following merchendise: %s \n", keys[input-1]);
+    char **keys = calloc(items_size+1, sizeof(char *));
+    int i;
+
+    for(i = 0; i < items_size; i++) // alla namn på merch till en array
+    {
+        keys[i] = ioopm_linked_list_get(items, i).extra;
+    }
+    int input = ask_question_int("Enter the item you wish to remove: "); // ge ett val att inte ta bort något item kanske
+
+    elem_t merch_to_remove = {.extra = (void *)keys[input-1]};
 
     ioopm_hash_table_remove(warehouse, merch_to_remove);
-    key_array_destroy(keys, ioopm_hash_table_size(warehouse));
-    
 }
+
+
+
+
+// void ioopm_remove_merch(ioopm_hash_table_t *warehouse)
+// {
+//     ioopm_list_t *list = ioopm_hash_table_keys(warehouse);
+//     char *keys[ioopm_linked_list_size(list)];
+//     for(int i = 0; i < ioopm_linked_list_size(list); i++)
+//     {
+//       keys[i] = ioopm_linked_list_get(list, i).extra;
+//     }
+//     ioopm_linked_list_destroy(list);
+    
+//     int input = ask_question_int("Enter the merchendise you wish to remove: "); // ge ett val att inte ta bort något item kanske
+    
+//     elem_t merch_to_remove = ptr_elem(keys[input-1]);
+//     printf("You have removed the following merchendise: %s \n", keys[input-1]);
+
+//     ioopm_hash_table_remove(warehouse, merch_to_remove);
+//     key_array_destroy(keys, ioopm_hash_table_size(warehouse));
+    
+// }
 /*
 
 void ioopm_remove_merch(ioopm_hash_table_t *warehouse, merch_t *merch)

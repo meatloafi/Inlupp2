@@ -68,7 +68,7 @@ void event_loop(ioopm_hash_table_t *warehouse)
           ioopm_remove_merch(warehouse);
           ioopm_list_merch(warehouse);
           //ioopm_edit_merch
-          printf("TO BE IMPLEMENTED!\n"); break;
+
           case 5:
           //ioopm_show_stock
           printf("TO BE IMPLEMENTED!\n"); break;

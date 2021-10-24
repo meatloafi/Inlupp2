@@ -106,7 +106,7 @@ char *ask_question_string(char *question)
 
 char ask_question_char(char *question)
 {
-  return ask_question(question, is_char, (convert_func) strdup).char_value;  
+  return ask_question(question, is_char, (convert_func) toupper).char_value;  
 }
 
 int ask_question_int(char *question)
