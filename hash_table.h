@@ -19,6 +19,13 @@
 typedef struct entry entry_t;
 typedef struct hash_table ioopm_hash_table_t;
 
+struct entry
+{
+  elem_t key;       // holds the key
+  elem_t value;   // holds the value
+  entry_t *next; // points to the next entry (possibly NULL)
+};
+
 #define No_Buckets 17
 
 typedef bool (*ioopm_predicate_hash)(ioopm_hash_table_t *ht, elem_t key, elem_t value, void *extra);

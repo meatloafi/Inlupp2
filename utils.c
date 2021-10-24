@@ -42,6 +42,20 @@ bool is_number(char *str)
     return true;
 }
 
+bool is_input_int(char *str)
+{
+    if(is_number(str))   
+    {
+        int i = atoi(str);
+        if ((i >= 0 && i <= 12))
+        {
+            return true;
+        }
+    }
+    return false;
+
+}
+
 bool is_shelf(char *str)
 {
     if (!isalpha(str[0])) { return false; }
@@ -53,6 +67,15 @@ bool is_shelf(char *str)
         {
           return false;
         }
+    }
+    return true;
+}
+
+static bool is_char(char *str)
+{
+    if (is_number(str) || strlen(str) != 1 || !not_empty(str)) 
+    { 
+    return false;
     }
     return true;
 }
@@ -81,9 +104,20 @@ char *ask_question_string(char *question)
     return ask_question(question, not_empty, (convert_func) strdup).string_value;
 }
 
+char ask_question_char(char *question)
+{
+  return ask_question(question, is_char, (convert_func) strdup).char_value;  
+}
+
 int ask_question_int(char *question)
 {
     answer_t answer = ask_question(question, is_number, (convert_func) atoi);
+    return answer.int_value;
+}
+
+int ask_question_input_int(char *question)
+{
+    answer_t answer = ask_question(question, is_input_int, (convert_func) atoi);
     return answer.int_value;
 }
 

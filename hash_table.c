@@ -14,12 +14,12 @@ typedef struct hash_table ioopm_hash_table_t;
 
 #define prime_amount 11
 
-struct entry
-{
-  elem_t key;       // holds the key
-  elem_t value;   // holds the value
-  entry_t *next; // points to the next entry (possibly NULL)
-};
+// struct entry
+// {
+//   elem_t key;       // holds the key
+//   elem_t value;   // holds the value
+//   entry_t *next; // points to the next entry (possibly NULL)
+// };
 
 struct hash_table
 {

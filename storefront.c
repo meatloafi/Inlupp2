@@ -4,11 +4,11 @@
 #include <errno.h> 
 #include <string.h>
 #include "hash_table.h"
+#include "list_linked.h"
 #include "iterator.h"
 #include "common.h"
 #include "business.h"
 #include "utils.h"
-#include "list_linked.h"
 
 typedef struct merch merch_t;
 typedef struct shelf shelf_t;
@@ -50,66 +50,69 @@ void event_loop(ioopm_hash_table_t *warehouse)
 {
   print_options_menu();
   
-  char input;
+  int input;
   do
   {
-    int input = ask_question_int("Input: ");
-    if (input >= 0 && input <= 12)
-    {
-        switch(input)
-        {
-            case 1:
-            ioopm_add_merch(warehouse);
+    input = ask_question_input_int("Input: ");
+      switch(input)
+      {
+          case 1:
+
+          ioopm_add_merch(warehouse);
+          break;
+          case 2:
+          ioopm_list_merch(warehouse);
+          break;
+
+          case 3:
+          {
+            char *merchname = ask_question_string("Which merchandise do you wish to remove?: ");
+            elem_t requested_merch = {.extra = merchname};
+            bool result;
+            ioopm_remove_merch(warehouse, merch_to_remove, &result);
+            if (!result)
+            {
+              printf("No merchenandise found with the name %s \n", merchname); break;
+            }
             //printf("TO BE IMPLEMENTED!\n"); 
-            break;
-            case 2:
-            ioopm_list_merch(warehouse);
-            break;
-            case 3:
-            //ioopm_remove_merch
-            printf("TO BE IMPLEMENTED!\n"); break;
-            case 4:
-            //ioopm_edit_merch
-            printf("TO BE IMPLEMENTED!\n"); break;
-            case 5:
-            //ioopm_show_stock
-            printf("TO BE IMPLEMENTED!\n"); break;
-            case 6:
-            //ioopm_replenish_stock
-            printf("TO BE IMPLEMENTED!\n"); break;
-            case 7:
-            //ioopm_create_cart
-            printf("TO BE IMPLEMENTED!\n"); break;
-            case 8:
-            //ioopm_remove_cart
-            printf("TO BE IMPLEMENTED!\n"); break;
-            case 9:
-            //ioopm_add_to_cart
-            printf("TO BE IMPLEMENTED!\n"); break;
-            case 10:
-            //ioopm_remove_from_cart
-            printf("TO BE IMPLEMENTED!\n"); break;
-            case 11:
-            //ioopm_calc_cart_cost
-            printf("TO BE IMPLEMENTED!\n"); break;
-            case 12:
-            //ioopm_checkout_cart
-            printf("TO BE IMPLEMENTED!\n"); break;
-            case 0:
-            printf("Hejdå!\n"); break;
-        }
-    }
-    else
-        {
-            printf("Please enter a valid option (number between 0-12)\n");
-            input = ask_question_int("Input: ");
-        }
+          }
+          case 4:
+          //ioopm_edit_merch
+          printf("TO BE IMPLEMENTED!\n"); break;
+          case 5:
+          //ioopm_show_stock
+          printf("TO BE IMPLEMENTED!\n"); break;
+          case 6:
+          //ioopm_replenish_stock
+          printf("TO BE IMPLEMENTED!\n"); break;
+          case 7:
+          //ioopm_create_cart
+          printf("TO BE IMPLEMENTED!\n"); break;
+          case 8:
+          //ioopm_remove_cart
+          printf("TO BE IMPLEMENTED!\n"); break;
+          case 9:
+          //ioopm_add_to_cart
+          printf("TO BE IMPLEMENTED!\n"); break;
+          case 10:
+          //ioopm_remove_from_cart
+          printf("TO BE IMPLEMENTED!\n"); break;
+          case 11:
+          //ioopm_calc_cart_cost
+          printf("TO BE IMPLEMENTED!\n"); break;
+          case 12:
+          //ioopm_checkout_cart
+          printf("TO BE IMPLEMENTED!\n"); break;
+          case 0:
+          printf("Hejdå!\n"); break; 
+      }
 }
-while (input != '6');
+while (input != 0);
 }
 
-void main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   ioopm_hash_table_t *warehouse = ioopm_hash_table_create(0, 0, NULL, NULL, NULL);
   event_loop(warehouse);
+  return 0;
 }

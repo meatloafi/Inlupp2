@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <errno.h> 
 #include <string.h>
+#include <ctype.h> 
 #include "hash_table.h"
 #include "list_linked.h"
 #include "iterator.h"
@@ -24,67 +25,102 @@ struct merch
 };
 
 
+struct shelf
+{
+    char section;
+    int number;
+};
 
-merch_t create_merch()
+
+//ask_question_shelf("Shelf: ");
+entry_t *create_merch()
 {
     char *name = ask_question_string("Name: ");
     char *desc = ask_question_string("Description: ");
     size_t price = ask_question_int("Price: ");
     int stock = ask_question_int("Quantity: ");
-    //ioopm_list_t *location = ask_question_shelf("Shelf: ");
-    merch_t merch = {.name = name, .description = desc, .price = price, .stock = stock/*, .location = location*/};
+    ioopm_list_t *location = ioopm_linked_list_create(NULL);
+    char shelf_section = toupper((ask_question_char("Shelf section: ")));
+    int shelf_number = ask_question_int("Shelf number: ");
+    shelf_t shelf = { .section = shelf_section, .number = shelf_number};
+    ioopm_linked_list_append(location, ptr_elem(&shelf));
 
-    return merch;
+    merch_t merch = {.name = name, .description = desc, .price = price, .stock = stock, .location = location};
+
+    entry_t *merchandise = calloc(1, sizeof(entry_t));
+
+    merchandise->key = ptr_elem(merch.name);
+    merchandise->value = ptr_elem(&merch);
+    // merchandise->next = NULL;
+
+    return merchandise;
 }
 
 void ioopm_add_merch(ioopm_hash_table_t *warehouse)
 {
-    merch_t new_merch = create_merch();
-    elem_t merch_elem = {.number = *new_merch.name, .extra = &new_merch};
-    if(!ioopm_hash_table_has_key(warehouse, merch_elem))
+    entry_t *new_merch = create_merch();
+
+    if(!ioopm_hash_table_has_key(warehouse, new_merch->key)) // TODO; Verkar inte förhindra att man kan stoppa många med samma namn
     {
-        
-        ioopm_hash_table_insert(warehouse, merch_elem, merch_elem); // TODO: insert tar en elem_t
+        ioopm_hash_table_insert(warehouse, new_merch->key, new_merch->value);
     }
 }
 
 void ioopm_list_merch(ioopm_hash_table_t *warehouse)
 {
     ioopm_list_t *items = ioopm_hash_table_keys(warehouse);
-    size_t items_size =  ioopm_linked_list_size(items);
+    size_t items_size = ioopm_linked_list_size(items);
 
-    char *keys[items_size];
+    char **keys = calloc(items_size+1, sizeof(char *));
     int i;
 
-    for(i = 0; i < items_size; i++) // alla namn på merch till en array
+    if (ioopm_linked_list_is_empty(items))
     {
-      keys[i] = ioopm_linked_list_get(items, i);
+        printf("The warehouse is empty \n");
+    }
+    else
+    {
+        for(i = 0; i < items_size; i++) // alla namn på merch till en array
+    {
+        keys[i] = ioopm_linked_list_get(items, i).extra;
     }
 
     for (i = 0; i < items_size; i++)  // printar namnen på all merch
     {                                 // TODO: printa 20 items i taget
-        printf ("%d. %s \n ",(i+1), keys[i]);
+        printf ("%d. %s \n",(i+1), keys[i]);
     }
+    }
+    free(keys);
 }
 
-void ioopm_list_merch(ioopm_hash_table_t *warehouse)
+void ioopm_remove_merch(ioopm_hash_table_t *warehouse, merch_t merch, bool *result)
 {
-    entry_t current_entry = 
-    ioopm_hash_table_lookup
+    if(ioopm_hash_table_has_key(warehouse, ptr_elem(merch))) // TODO; Verkar inte förhindra att man kan stoppa många med samma namn
+    {
+        *result = true;
+        ioopm_hash_table_remove(warehouse, ptr_elem(merch));
+    }
+    else
+    {
+        *result = false;
+    }
+    
 }
+/*
 
-// void ioopm_remove_merch(ioopm_hash_table_t *warehouse, merch_t merch)
-// {
-//     ioopm_hash_table_remove(warehouse, merch.name); // TODO: ht_remove tar en elem_t
-//                                                     // TODO: ta bort stock också om det inte redan sker
-// }
+void ioopm_remove_merch(ioopm_hash_table_t *warehouse, merch_t *merch)
+{
+    char *merchname = merch->name;
+    ioopm_hash_table_remove(warehouse, ptr_elem(merch)); // TODO: ht_remove tar en elem_t  ta bort stock också om det inte redan sker
+    printf("Removed %s\n", merchname);
+}*/
 
 // merch_t ioopm_edit_merch(ioopm_hash_table_t warehouse, merch_t merch, char *new_name, char *new_desc, size_t new_price)
 // {
-//     if(ioopm_hash_table_has_key(new_name))
+//     if(ioopm_hash_table_has_key(warehouse, ptr_elem(new_name))
 //     {
 //         // TODO: om det nya namnet redan existerar avbryts funktionen
-//     }
+//     }   
 //     int merch_stock = merch.stock;
 //     ioopm_list_t merch_location = merch.location; 
 //     ioopm_remove_merch(warehouse, merch);

@@ -12,8 +12,9 @@
  * @see https://uppsala.instructure.com/courses/47154/assignments/75644
  */
 
-/// @brief The merchandise which is made up of a name, price, description, stock and location (shelf). The merchandise in itself is an element in a hashtable and its location is part of a list, \
-the name of the merchandise serves as its key.
+/// @brief The merchandise which is made up of a name, price, description, stock and location (shelf). 
+/// The merchandise in itself is an element in a hashtable and its location is part of a list, 
+/// the name of the merchandise serves as its key.
 typedef struct merch merch_t;
 
 /// @brief The shelf is the storage space for a merchandise and is itself a link in a linked list.
@@ -34,7 +35,7 @@ void ioopm_list_merch(ioopm_hash_table_t *warehouse);
 /// @param warehouse The warehouse which is being modified by removing the merch
 /// @param merch The merchandise to be removed
 /// @return The removed merchandise
-void ioopm_remove_merch(ioopm_hash_table_t *warehouse, merch_t merch);
+void ioopm_remove_merch(ioopm_hash_table_t *warehouse, merch_t merch, bool *result);
 
 /// @brief Allows changes to items. Name, description and price. But the name is not allowed to be one that already exists
 /// @param warehouse The warehouse in which the merchandise is stored
