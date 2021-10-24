@@ -122,4 +122,4 @@ void ioopm_linked_apply_to_all(ioopm_list_t *list, ioopm_apply_function fun, voi
 /// @param list the linked list
 /// @param fun the function to be applied
 /// @param extra an additional argument (may be NULL) that will be passed to all internal calls of fun
-//char **convert_list_array(ioopm_list_t *list);
+char **convert_list_array(ioopm_list_t *list);

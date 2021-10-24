@@ -35,7 +35,7 @@ void ioopm_list_merch(ioopm_hash_table_t *warehouse);
 /// @param warehouse The warehouse which is being modified by removing the merch
 /// @param merch The merchandise to be removed
 /// @return The removed merchandise
-void ioopm_remove_merch(ioopm_hash_table_t *warehouse, merch_t merch, bool *result);
+void ioopm_remove_merch(ioopm_hash_table_t *warehouse);
 
 /// @brief Allows changes to items. Name, description and price. But the name is not allowed to be one that already exists
 /// @param warehouse The warehouse in which the merchandise is stored

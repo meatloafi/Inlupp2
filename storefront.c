@@ -59,24 +59,14 @@ void event_loop(ioopm_hash_table_t *warehouse)
           case 1:
 
           ioopm_add_merch(warehouse);
+          ioopm_list_merch(warehouse);
           break;
           case 2:
           ioopm_list_merch(warehouse);
           break;
-
           case 3:
-          {
-            char *merchname = ask_question_string("Which merchandise do you wish to remove?: ");
-            elem_t requested_merch = {.extra = merchname};
-            bool result;
-            ioopm_remove_merch(warehouse, merch_to_remove, &result);
-            if (!result)
-            {
-              printf("No merchenandise found with the name %s \n", merchname); break;
-            }
-            //printf("TO BE IMPLEMENTED!\n"); 
-          }
-          case 4:
+          ioopm_remove_merch(warehouse);
+          ioopm_list_merch(warehouse);
           //ioopm_edit_merch
           printf("TO BE IMPLEMENTED!\n"); break;
           case 5:
@@ -114,5 +104,6 @@ int main(int argc, char *argv[])
 {
   ioopm_hash_table_t *warehouse = ioopm_hash_table_create(0, 0, NULL, NULL, NULL);
   event_loop(warehouse);
+  ioopm_hash_table_destroy(warehouse);
   return 0;
 }
