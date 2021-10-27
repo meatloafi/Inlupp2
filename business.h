@@ -17,25 +17,39 @@
 /// the name of the merchandise serves as its key.
 typedef struct merch merch_t;
 
+typedef struct warehouse warehouse_t;
+
 /// @brief The shelf is the storage space for a merchandise and is itself a link in a linked list.
 typedef struct shelf shelf_t;
+
+
+merch_t *create_merch(int id, char *name, char *desc, size_t price);
+
+warehouse_t *ioopm_warehouse_create();
+
+void ioopm_warehouse_destroy();
+
+shelf_t *create_shelf(char *shelf);
+void key_array_destroy(char **keys, size_t size);
 
 /// @brief Adds a new item to the warehouse
 /// @param warehouse The warehouse which is being modified by adding merchandise
 /// @param merch The merchandise added to the warehouse
 /// @return The newly added merchandise
-void ioopm_add_merch(ioopm_hash_table_t *warehouse);
+bool ioopm_add_merch(warehouse_t *warehouse, char *name_sd, char *desc_sd, size_t price);
 
 /// @brief Lists all items in the warehouse
 /// @param warehouse The warehouse containing current 
 /// @return prints 20 items at a time, the user can continue to print the next 20 items
-void ioopm_list_merch(ioopm_hash_table_t *warehouse);
+void ioopm_list_merch(warehouse_t *warehouse);
+
+merch_t *merch_get(warehouse_t *warehouse, char *merch);
 
 /// @brief Completely removes an item from the warehouse
 /// @param warehouse The warehouse which is being modified by removing the merch
 /// @param merch The merchandise to be removed
 /// @return The removed merchandise
-void ioopm_remove_merch(ioopm_hash_table_t *warehouse);
+void ioopm_remove_merch(warehouse_t *warehouse, char *merch);
 
 /// @brief Allows changes to items. Name, description and price. But the name is not allowed to be one that already exists
 /// @param warehouse The warehouse in which the merchandise is stored
@@ -43,19 +57,19 @@ void ioopm_remove_merch(ioopm_hash_table_t *warehouse);
 /// @param name The new name of the merchandise. (MUST NOT BE ONE THAT ALREADY EXISTS)
 /// @param new_desc The new description of the merchandise
 /// @param new_price The new price of the merchanise
-/// @return The edited merchandise
-merch_t ioopm_edit_merch(ioopm_hash_table_t *warehouse, merch_t merch, char *new_name, char *new_desc, size_t new_price);
+/// @return The edited merchandise TODO:
+void ioopm_edit_merch(warehouse_t *warehouse, char *merch, char *new_name, char *new_desc, size_t new_price);
 
 /// @brief Lists where the item is stored as well as the quantity of it in each storage location
 /// @param warehouse The warehouse where the merchandise is stored
 /// @param merch The merch we wish to know the storage locations of (shelf)
-void ioopm_show_stock(ioopm_hash_table_t *warehouse, merch_t merch);
+void ioopm_show_stock(warehouse_t *warehouse, char *merch);
 
 /// @brief Increases the stock of an item by atleast 1
 /// @param warehouse The warehouse in which the merch is stored
 /// @param merch The merch which you want to replenish the stock of
 /// @param quantity The amount of which you wish to increase the stock with
-void ioopm_replenish_stock(ioopm_hash_table_t *warehouse, merch_t merch, size_t quantity);
+void ioopm_replenish_stock(warehouse_t *warehouse, merch_t merch, size_t quantity);
 
 /// @brief Creates a shopping cart
 /// @param cart The shopping cart being created

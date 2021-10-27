@@ -13,127 +13,278 @@
 
 typedef struct merch merch_t;
 typedef struct shelf shelf_t;
+typedef struct warehouse warehouse_t;
 
 
 struct merch 
 {
+    int id;
     char *name;
-    int price;
+    size_t price;
     char *description;
-    int stock;
     ioopm_list_t *location;
 };
 
 
 struct shelf
 {
-    char section;
-    int number;
+    char *shelf;
+    int stock;
 };
 
-
-
-void key_array_destroy(char **keys, size_t size)
+struct warehouse
 {
-  for (int i = 0; i < size; i++)
-  {
-    free (keys[i]);
-  }
+    ioopm_hash_table_t *items;
+    ioopm_hash_table_t *shelves;
+    size_t item_count;
+};
+
+warehouse_t *ioopm_warehouse_create()
+{
+    ioopm_hash_table_t *items = ioopm_hash_table_create(0, 0, NULL, NULL, NULL);
+    ioopm_hash_table_t *shelves = ioopm_hash_table_create(0, 0, NULL, NULL, NULL);
+    warehouse_t *warehouse = calloc(1, sizeof(warehouse_t));
+    warehouse->items = items;
+    warehouse->shelves = shelves;
+    warehouse->item_count = 0;
+    return warehouse;
+}
+
+void ioopm_warehouse_destroy(warehouse_t *warehouse)
+{
+    ioopm_hash_table_destroy(warehouse->items);
+    ioopm_hash_table_destroy(warehouse->shelves);
+    free(warehouse);
 }
 
 //ask_question_shelf("Shelf: ");
-entry_t *create_merch()
+merch_t *create_merch(int id, char *name, char *desc, size_t price)
 {
-    char *name_sd = ask_question_string("Name: ");
-    char *desc_sd = ask_question_string("Description: ");
-    size_t price = ask_question_int("Price: ");
-    int stock = ask_question_int("Quantity: ");
-    char name[255] = {0};
-    char desc[255] = {0};
-    strcat(name, desc_sd);
-    strcat(desc, name_sd);
-    free(name_sd);
-    free(desc_sd);
-    
-    ioopm_list_t *location = ioopm_linked_list_create(NULL);
-    char shelf_section = (ask_question_char("Shelf section: "));
-    int shelf_number = ask_question_int("Shelf number: ");
-
-    shelf_t shelf = { .section = shelf_section, .number = shelf_number};
-    ioopm_linked_list_append(location, ptr_elem(&shelf));
-
-    merch_t merch = {.name = name, .description = desc, .price = price, .stock = stock, .location = location};
-
-    entry_t *merchandise = calloc(1, sizeof(entry_t));
-
-    merchandise->key = ptr_elem(merch.name);
-    merchandise->value = ptr_elem(&merch);
-    // merchandise->next = NULL;
-    
+    merch_t *merchandise = calloc(1, sizeof(merch_t));
+    merchandise -> id = id;
+    merchandise -> name = name;
+    merchandise -> description = desc;
+    merchandise -> price = price;
+    merchandise -> location = ioopm_linked_list_create(compare_str);
     return merchandise;
 }
 
-void ioopm_add_merch(ioopm_hash_table_t *warehouse)
+shelf_t *create_shelf(char *shelf_name)
 {
-    entry_t *new_merch = create_merch();
-
-    if(!ioopm_hash_table_has_key(warehouse, new_merch->key)) // TODO; Verkar inte förhindra att man kan stoppa många med samma namn
-    {
-        ioopm_hash_table_insert(warehouse, new_merch->key, new_merch->value);
-    }
+    shelf_t *result = calloc(1, sizeof(shelf_t));
+    result->shelf = shelf_name;
+    result->stock = 0;
+    return result;
 }
 
 
-
-void ioopm_list_merch(ioopm_hash_table_t *warehouse)
+bool ioopm_add_merch(warehouse_t *warehouse, char *name, char *desc, size_t price) //success shown by bool value
 {
-    ioopm_list_t *items = ioopm_hash_table_keys(warehouse);
-    size_t items_size = ioopm_linked_list_size(items);
+    if(ioopm_hash_table_has_key(warehouse->items, ptr_elem(name)))
+    {
+        return false;
+    }
+    else
+    {
+        warehouse->item_count++;
+        merch_t *new_merch = create_merch(warehouse->item_count, name, desc, price);
+        ioopm_hash_table_insert(warehouse->items, int_elem(new_merch->id), ptr_elem(new_merch));
+        return true;
+    }   
+}
 
-    char **keys = calloc(items_size+1, sizeof(char *));
-    int i;
 
-    if (ioopm_linked_list_is_empty(items))
+void print_merch (merch_t *merch)
+{
+    printf (" Name: %s \n Desc: %s \n Price: %ld \n", merch -> name, merch -> description, merch -> price);
+}
+
+
+// void ioopm_list_merch(warehouse_t *warehouse) 
+// {
+//   ioopm_list_t *items = ioopm_hash_table_values(warehouse->items);
+
+//   if (ioopm_hash_table_is_empty(warehouse->items))
+//     {
+//         printf("The warehouse is empty \n");
+//     }
+//   else
+//     {
+//     ioopm_list_iterator_t *iter = ioopm_list_iterator(items);
+
+//     int size = ioopm_linked_list_size(items);
+//     for (int i = 0; i < size; i++)
+//     {
+//       printf("Item number: %d \n", i+1);
+//       print_merch(ioopm_iterator_current(iter).extra);
+//       ioopm_iterator_next(iter);
+//       if((i = 19))
+//       {
+//           break;
+//       }
+//     }
+//     ioopm_iterator_destroy(iter);
+//     }
+//     ioopm_linked_list_destroy(items);
+// }
+
+
+void ioopm_list_merch(warehouse_t *warehouse) //TODO; merch kommer in som den ska i HT men när vi gör en lista med den keyn får vi bara med key och där finns endast id, name,desc,price finns i value
+{                                             //original-funktion
+    // ioopm_list_t *item_keys = ioopm_hash_table_keys(warehouse->items); // vi får endast med id här
+    ioopm_list_t *item_values = ioopm_hash_table_values(warehouse->items);
+
+    if (ioopm_hash_table_is_empty(warehouse->items))
     {
         printf("The warehouse is empty \n");
     }
     else
     {
-        for(i = 0; i < items_size; i++) // alla namn på merch till en array
-    {
-        keys[i] = ioopm_linked_list_get(items, i).extra;
+        int size = ioopm_linked_list_size(item_values);
+        
+        for (int i = 0; i < size; ++i)
+        {
+            
+            elem_t current_value = ioopm_linked_list_get(item_values, i);
+            merch_t *current_merch = (merch_t *)current_value.extra;
+            printf("Item no. %d: \n",i+1);
+            print_merch(current_merch);
+            printf("\n");
+        }
     }
-
-    for (i = 0; i < items_size; i++)  // printar namnen på all merch
-    {                                 // TODO: printa 20 items i taget
-        printf ("%d. %s \n",(i+1), keys[i]);
-    }
-    }
-    free(keys);
-    ioopm_linked_list_destroy(items);
+    ioopm_linked_list_destroy(item_values);
 }
- 
 
 
-void ioopm_remove_merch(ioopm_hash_table_t *warehouse)
+
+void merch_destroy(merch_t *merch)
 {
-    ioopm_list_t *items = ioopm_hash_table_keys(warehouse);
-    size_t items_size = ioopm_linked_list_size(items);
-
-    char **keys = calloc(items_size+1, sizeof(char *));
-    int i;
-
-    for(i = 0; i < items_size; i++) // alla namn på merch till en array
-    {
-        keys[i] = ioopm_linked_list_get(items, i).extra;
-    }
-    int input = ask_question_int("Enter the item you wish to remove: "); // ge ett val att inte ta bort något item kanske
-
-    elem_t merch_to_remove = {.extra = (void *)keys[input-1]};
-
-    ioopm_hash_table_remove(warehouse, merch_to_remove);
+    free(merch); 
+    //ioopm_linked_list_destroy(merch->location); ??
+    merch = NULL;
 }
 
+// merch_t merch_get(warehouse_t *warehouse, merch_t *merch) //originalfunktionen
+// {
+//     ioopm_list_t *items = ioopm_hash_table_keys(warehouse->items);
+//     ioopm_list_iterator_t *iter = ioopm_list_iterator(items);
+
+//     while(((merch_t *) ioopm_iterator_current(iter).extra) != merch)
+//     {
+//         ioopm_iterator_next(iter);
+//     }
+//     merch_t current_merch = ((merch_t *) ioopm_iterator_current(iter).extra);
+//     ioopm_iterator_destroy(iter);
+//     ioopm_linked_list_destroy(items);
+// }
+
+merch_t *merch_get(warehouse_t *warehouse, char *merch) //ändrade så den tar en char * istället för en merch_t, om vi redan har vår merch behöver vi inte hitta den
+{
+    ioopm_list_t *items = ioopm_hash_table_keys(warehouse->items);
+    ioopm_list_iterator_t *iter = ioopm_list_iterator(items);
+
+    while(((merch_t *)ioopm_iterator_current(iter).extra)->name != merch)
+    {
+        ioopm_iterator_next(iter);
+    }
+    merch_t *current_merch = ((merch_t *) ioopm_iterator_current(iter).extra);
+    ioopm_iterator_destroy(iter);
+    ioopm_linked_list_destroy(items);
+    return current_merch;
+}
+
+// void empty_stock(warehouse_t *warehouse, merch_t *merch)
+// {
+//     ioopm_list_iterator_t *iter = ioopm_list_iterator(merch->location);
+//     while(ioopm_iterator_has_next(iter))
+//     {
+//         merch->location->
+//     }
+
+//     warehouse->shelves->current_shelf->stock = 0;
+// }
+
+void ioopm_remove_merch(warehouse_t *warehouse, char *merch_name)
+{   bool result;
+    elem_t to_remove = ioopm_hash_table_lookup(warehouse->items, ptr_elem(merch_name), &result);
+    if(!result)
+    {
+        printf("The merchandise named %s could not be found \n", merch_name);
+    }
+    else
+    {
+       merch_t *merch_to_remove = to_remove.extra; 
+       //empty_stock(warehouse, merch_to_remove);
+       ioopm_linked_list_destroy(merch_to_remove->location);
+       ioopm_hash_table_remove(warehouse->items, ptr_elem(merch_name));
+       merch_destroy(merch_to_remove);
+    }
+}
+    
+// void ioopm_edit_merch(warehouse_t *warehouse, merch_t *merch, char *new_name, char *new_desc, size_t new_price) //original-funktion
+// {
+//     merch_t *current_merch = merch_get(warehouse, merch);
+    
+//     current_merch -> name = new_name;
+//     current_merch -> description = new_desc;
+//     current_merch -> price = new_price;
+// }
+
+void ioopm_edit_merch(warehouse_t *warehouse, char *merch, char *new_name, char *new_desc, size_t new_price) 
+{
+    merch_t *current_merch = merch_get(warehouse, merch);
+    
+    current_merch -> name = new_name;
+    current_merch -> description = new_desc;
+    current_merch -> price = new_price;
+}
+
+void print_locations (ioopm_list_t *locations)
+{
+    ioopm_list_iterator_t *iter_locations = ioopm_list_iterator(locations);
+    int i = 1;
+    shelf_t *current_shelf;
+    while (ioopm_iterator_current(iter_locations).extra != NULL)
+    {
+        current_shelf = ioopm_iterator_current(iter_locations).extra;
+        printf("Storage location no.%d : %s\n",i, current_shelf->shelf);
+        printf("Stock: %d \n", current_shelf->stock);
+        ioopm_iterator_next(iter_locations);
+        i++;
+    }
+    ioopm_iterator_destroy(iter_locations);
+
+}
+
+
+
+// void ioopm_show_stock(warehouse_t *warehouse, merch_t *merch) //original
+// {
+//     merch_t *current_merch = merch_get(warehouse, merch);
+
+//     ioopm_list_iterator_t *iter_locations = ioopm_list_iterator(current_merch->location);
+
+//     int i = 0;
+    
+//     printf("The following are the storage locations for merch: \n");
+//     print_merch(((merch_t *) ioopm_iterator_current(iter_locations).extra));
+//     printf("\n Locations and stock: \n");
+//     print_locations(current_merch);
+// }
+
+void ioopm_show_stock(warehouse_t *warehouse, char *merch)
+{
+    merch_t *current_merch = merch_get(warehouse, merch);
+
+    ioopm_list_iterator_t *iter_locations = ioopm_list_iterator(current_merch->location);
+
+    // int i = 0;
+    
+    printf("The following are the storage locations for merch: \n");
+    print_merch(((merch_t *) ioopm_iterator_current(iter_locations).extra));
+    printf("\n Locations and stock: \n");
+    print_locations(current_merch->location);
+}
 
 
 
@@ -165,20 +316,40 @@ void ioopm_remove_merch(ioopm_hash_table_t *warehouse, merch_t *merch)
     printf("Removed %s\n", merchname);
 }*/
 
-// merch_t ioopm_edit_merch(ioopm_hash_table_t warehouse, merch_t merch, char *new_name, char *new_desc, size_t new_price)
+// void ioopm_edit_merch(warehouse_t *warehouse, merch_t *merch, char *new_name, char *new_desc, size_t new_price)
 // {
-//     if(ioopm_hash_table_has_key(warehouse, ptr_elem(new_name))
-//     {
-//         // TODO: om det nya namnet redan existerar avbryts funktionen
-//     }   
-//     int merch_stock = merch.stock;
-//     ioopm_list_t merch_location = merch.location; 
-//     ioopm_remove_merch(warehouse, merch);
+    // ioopm_list_t *items = ioopm_hash_table_keys(warehouse->items);
+    // size_t items_size = ioopm_linked_list_size(items);
 
-//     merch = {.name = new_name, .description = new_desc, .price = new_price, .stock = merch_stock, .location = merch_location};
+    // char **keys = calloc(items_size+1, sizeof(char *));
+    // int i;
+    
+    // for(i = 0; i < items_size; i++) // alla namn på merch till en array
+    // {
+    //     keys[i] = ioopm_linked_list_get(items, i).extra;
+    // }
 
-//     ioopm_add_merch(merch);
+    // int input = ask_question_int("Enter the item you wish to edit: ");
+    // merch = {(void *)keys[input-1]};
+//     merch -> name = new_name;
+//     merch -> description = new_desc;
+//     merch -> price = new_price;
 // }
+    
+    /*
+    if(ioopm_hash_table_has_key(warehouse, ptr_elem(new_name))
+    {
+        // TODO: om det nya namnet redan existerar avbryts funktionen
+    }   
+    int merch_stock = merch.stock;
+    ioopm_list_t merch_location = merch.location; 
+    ioopm_remove_merch(warehouse, merch);
+
+    merch = {.name = new_name, .description = new_desc, .price = new_price, .stock = merch_stock, .location = merch_location};
+
+    ioopm_add_merch(merch);
+    */
+
 
 // void ioopm_replenish_stock(ioopm_hash_table_t warehouse, merch_t merch, size_t quantity) // TODO: ska stock läggas till på shelves också
 // {
@@ -186,7 +357,24 @@ void ioopm_remove_merch(ioopm_hash_table_t *warehouse, merch_t *merch)
 // }
 
 
-// void ioopm_show_stock(ioopm_hash_table_t warehouse, merch_t merch)
+// void ioopm_show_stock(warehouse_t *warehouse, merch_t *merch)
 // {
-//     printf("Stock: %d", merch.stock);
+    // ioopm_list_t *items = ioopm_hash_table_keys(warehouse->items);
+    // size_t items_size = ioopm_linked_list_size(items);
+
+    // char **keys = calloc(items_size+1, sizeof(char *));
+    // int i;
+
+    // for(i = 0; i < items_size; i++) // alla namn på merch till en array
+    // {
+    //     keys[i] = ioopm_linked_list_get(items, i).extra;
+    // }
+    //int input = ask_question_int("Enter the item you wish to view the stock of: "); // ge ett val att inte ta bort något item kanske
+
+    //elem_t merch_to_remove = {.extra = (void *)keys[input-1]};
+    //int stock = &(merch_to_remove.extra)->stock;
+    //int stock = merch->location->
+    
+    //printf("Stock: %d", stock);
+
 // }

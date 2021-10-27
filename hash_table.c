@@ -315,7 +315,7 @@ ioopm_list_t *ioopm_hash_table_keys(ioopm_hash_table_t *ht)
     }
    }
    return key_list; // each string in the array gets its value from current_entry
-}
+} 
 
 /// return the values for all entries in a hash map
 ioopm_list_t *ioopm_hash_table_values(ioopm_hash_table_t *ht)
@@ -323,7 +323,7 @@ ioopm_list_t *ioopm_hash_table_values(ioopm_hash_table_t *ht)
    ioopm_list_t *val_list = ioopm_linked_list_create(ht->compare_val); //allocate memory for an array of arrays the size of ht
    for (int i = 0; i < ht->capacity; i++)
    {
-    entry_t *current_entry = &ht->buckets[i]; //first entry for each bucket
+    entry_t *current_entry = (ht->buckets[i]).next; //first entry for each bucket
     while (current_entry)
     {
       ioopm_linked_list_append(val_list, current_entry->value);
