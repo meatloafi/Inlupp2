@@ -22,6 +22,7 @@ typedef struct warehouse warehouse_t;
 /// @brief The shelf is the storage space for a merchandise and is itself a link in a linked list.
 typedef struct shelf shelf_t;
 
+#define make_spacing  printf("\n----------------------------------------------------------\n")
 
 merch_t *create_merch(int id, char *name, char *desc, size_t price);
 
@@ -43,13 +44,13 @@ bool ioopm_add_merch(warehouse_t *warehouse, char *name_sd, char *desc_sd, size_
 /// @return prints 20 items at a time, the user can continue to print the next 20 items
 void ioopm_list_merch(warehouse_t *warehouse);
 
-merch_t *merch_get(warehouse_t *warehouse, char *merch);
+merch_t *merch_get(warehouse_t *warehouse, char *merch_name);
 
 /// @brief Completely removes an item from the warehouse
 /// @param warehouse The warehouse which is being modified by removing the merch
 /// @param merch The merchandise to be removed
 /// @return The removed merchandise
-void ioopm_remove_merch(warehouse_t *warehouse, char *merch);
+bool ioopm_remove_merch(warehouse_t *warehouse, char *merch_name);
 
 /// @brief Allows changes to items. Name, description and price. But the name is not allowed to be one that already exists
 /// @param warehouse The warehouse in which the merchandise is stored
@@ -58,7 +59,7 @@ void ioopm_remove_merch(warehouse_t *warehouse, char *merch);
 /// @param new_desc The new description of the merchandise
 /// @param new_price The new price of the merchanise
 /// @return The edited merchandise TODO:
-void ioopm_edit_merch(warehouse_t *warehouse, char *merch, char *new_name, char *new_desc, size_t new_price);
+bool ioopm_edit_merch(warehouse_t *warehouse, char *merch, char *new_name, char *new_desc, size_t new_price);
 
 /// @brief Lists where the item is stored as well as the quantity of it in each storage location
 /// @param warehouse The warehouse where the merchandise is stored

@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <CUnit/Basic.h>
 #include "hash_table.h"
-#include "list_linked.h"
+#include "linked_list.h"
 #include "common.h"
 #include "business.h"
 
@@ -81,7 +81,7 @@ void test_add_merch()
   CU_ASSERT_FALSE(result);
 
   result = NULL;
-  ioopm_hash_table_lookup(warehouse->items, int_elem(1), &result); //id på första tillagda merch -> 1
+  ioopm_hash_table_lookup(warehouse->items, ptr_elem("test name"), &result); //id på första tillagda merch -> 1
   CU_ASSERT_TRUE(result);
 
   ioopm_warehouse_destroy(warehouse);
@@ -89,57 +89,56 @@ void test_add_merch()
 
 //void test_list_merch() TODO;
 
-void test_list_merch()
-{
-  warehouse_t *warehouse = ioopm_warehouse_create();
-  ioopm_add_merch(warehouse, "Stick", "Sick", 420);
-  ioopm_list_merch(warehouse);
+// void test_list_merch()
+// {
+//   warehouse_t *warehouse = ioopm_warehouse_create();
+//   ioopm_add_merch(warehouse, "Stick", "Sick", 420);
+//   ioopm_list_merch(warehouse);
 
-  ioopm_warehouse_destroy(warehouse);
-}
+//   ioopm_warehouse_destroy(warehouse);
+// }
 
 
-void test_ht_to_list() //kanske lite dum, ska komma på nåt sätt att testa list_merch
-{                      //rätt keys finns i listorna men vi behöver få ut value som har infon om merch
-  char *name = "test name";
-  char *name2 = "name";
-  char *desc = "test desc";
-  size_t price = 13;
-  bool result = NULL;
+// void test_ht_to_list() //kanske lite dum, ska komma på nåt sätt att testa list_merch
+// {                      //rätt keys finns i listorna men vi behöver få ut value som har infon om merch
+//   char *name = "test name";
+//   char *name2 = "name";
+//   char *desc = "test desc";
+//   size_t price = 13;
+//   bool result = NULL;
 
-  warehouse_t *warehouse = ioopm_warehouse_create();
+//   warehouse_t *warehouse = ioopm_warehouse_create();
 
-  result = ioopm_hash_table_is_empty(warehouse->items);
-  CU_ASSERT_TRUE(result);
+//   result = ioopm_hash_table_is_empty(warehouse->items);
+//   CU_ASSERT_TRUE(result);
 
-  ioopm_add_merch(warehouse, name, desc, price);
-  result = ioopm_hash_table_is_empty(warehouse->items);
-  CU_ASSERT_FALSE(result);
+//   ioopm_add_merch(warehouse, name, desc, price);
+//   result = ioopm_hash_table_is_empty(warehouse->items);
+//   CU_ASSERT_FALSE(result);
 
-  ioopm_add_merch(warehouse, name2, desc, price);
-  size_t ht_size = ioopm_hash_table_size(warehouse->items);
-  CU_ASSERT_EQUAL(ht_size, 2);
+//   ioopm_add_merch(warehouse, name2, desc, price);
+//   size_t ht_size = ioopm_hash_table_size(warehouse->items);
+//   CU_ASSERT_EQUAL(ht_size, 2);
 
-  ioopm_list_t *items = ioopm_hash_table_keys(warehouse->items);
-  size_t list_size = ioopm_linked_list_size(items);
-  CU_ASSERT_EQUAL(ht_size, list_size);
+//   ioopm_list_t *items = ioopm_hash_table_keys(warehouse->items);
+//   size_t list_size = ioopm_linked_list_size(items);
+//   CU_ASSERT_EQUAL(ht_size, list_size);
 
-  ioopm_hash_table_lookup(warehouse->items, int_elem(1), &result);
-  CU_ASSERT_TRUE(result);
+//   ioopm_hash_table_lookup(warehouse->items, int_elem(1), &result);
+//   CU_ASSERT_TRUE(result);
 
-  ioopm_hash_table_lookup(warehouse->items, int_elem(2), &result);
-  CU_ASSERT_TRUE(result);
+//   ioopm_hash_table_lookup(warehouse->items, int_elem(2), &result);
+//   CU_ASSERT_TRUE(result);
 
-  result = ioopm_linked_list_contains(items, int_elem(1));
-  CU_ASSERT_TRUE(result);
+//   result = ioopm_linked_list_contains(items, int_elem(1));
+//   CU_ASSERT_TRUE(result);
 
-  result = ioopm_linked_list_contains(items, int_elem(2));
-  CU_ASSERT_TRUE(result);
+//   result = ioopm_linked_list_contains(items, int_elem(2));
+//   CU_ASSERT_TRUE(result);
 
-  ioopm_warehouse_destroy(warehouse);
-  ioopm_linked_list_destroy(items);
-}
-
+//   ioopm_warehouse_destroy(warehouse);
+//   ioopm_linked_list_destroy(items);
+// }
 
 void test_remove_merch()
 {
@@ -161,10 +160,18 @@ void test_remove_merch()
   ht_size = ioopm_hash_table_size(warehouse->items);
   CU_ASSERT_EQUAL(ht_size, 1);
 
-  ioopm_hash_table_lookup(warehouse->items, ptr_elem(name), &result);
+  ioopm_hash_table_lookup(warehouse->items, ptr_elem("test name"), &result);
   CU_ASSERT_FALSE(result);
 
-  ioopm_hash_table_lookup(warehouse->items, ptr_elem(name2), &result);
+  ioopm_hash_table_lookup(warehouse->items, ptr_elem("name"), &result);
+  CU_ASSERT_TRUE(result);
+
+  result = ioopm_hash_table_is_empty(warehouse->items);
+  CU_ASSERT_FALSE(result);
+
+  ioopm_remove_merch(warehouse, name2);
+
+  result = ioopm_hash_table_is_empty(warehouse->items);
   CU_ASSERT_TRUE(result);
 
   ioopm_warehouse_destroy(warehouse);
@@ -182,10 +189,10 @@ void test_edit_merch()
   warehouse_t *warehouse = ioopm_warehouse_create();
   ioopm_add_merch(warehouse, name, desc, price);
 
-  merch_t *merch = merch_get(warehouse, name);
+  merch_t *merch = (ioopm_hash_table_lookup(warehouse->items, (elem_t){.extra = name}, &result)).extra;
 
   ioopm_edit_merch(warehouse, name, name_edit, desc_edit, price);
-  merch = merch_get(warehouse, name_edit);
+  merch = (ioopm_hash_table_lookup(warehouse->items, (elem_t){.extra = name_edit}, &result)).extra;
   char *edited_desc = merch->description;
   CU_ASSERT_EQUAL(edited_desc, desc_edit);
 
@@ -347,13 +354,13 @@ int main()
   if 
     ((NULL == CU_add_test(store_test_suite1, "test ioopm_add_merch", test_add_merch))||
 
-    (NULL == CU_add_test(store_test_suite1, "test list merch", test_list_merch))||
+    /*(NULL == CU_add_test(store_test_suite1, "test list merch", test_list_merch))||*/
     
-    (NULL == CU_add_test(store_test_suite1, "test ht_to_list", test_ht_to_list))||
+    /*(NULL == CU_add_test(store_test_suite1, "test ht_to_list", test_ht_to_list))||*/
     
-    (NULL == CU_add_test(store_test_suite1, "test ioopm_remove_merch", test_remove_merch))|| 
+    (NULL == CU_add_test(store_test_suite1, "test ioopm_remove_merch", test_remove_merch))/*|| 
   
-    (NULL == CU_add_test(store_test_suite1, "test ioopm_edit_merch", test_edit_merch))/*||
+    (NULL == CU_add_test(store_test_suite1, "test ioopm_edit_merch", test_edit_merch))||
     
     (NULL == CU_add_test(HT_test_suite1, "test remove1", test_remove1))||
     

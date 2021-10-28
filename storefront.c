@@ -4,7 +4,7 @@
 #include <errno.h> 
 #include <string.h>
 #include "hash_table.h"
-#include "list_linked.h"
+#include "linked_list.h"
 #include "iterator.h"
 #include "common.h"
 #include "business.h"
@@ -109,17 +109,34 @@ void key_array_destroy(char **keys, size_t size)
 
 void ioopm_add_merch_interface(warehouse_t *warehouse)
 {
+  make_spacing;
   char *name = ask_question_string("Name: ");
   char *desc = ask_question_string("Description: ");
   size_t price = ask_question_int("Price: ");
   ioopm_add_merch(warehouse, name, desc, price);
+  make_spacing;
 }
 
-void make_spacing()
-{ 
-  printf("\n----------------------------------------------------------\n");
+
+void ioopm_edit_merch_interface(warehouse_t *warehouse, char *merch)
+{
+  char *new_name = ask_question_string("New name: ");
+  char *new_desc = ask_question_string("New description: ");
+  size_t new_price = ask_question_int("New price: ");
+  ioopm_edit_merch(warehouse, merch, new_name, new_desc, new_price);
+  make_spacing;
 }
 
+void ioopm_remove_merch_interface(warehouse_t *warehouse)
+{
+  char *merch_name;
+  //char name[255] = {0};
+  merch_name = ask_question_string("Which merchendise would you like to remove? \n");
+  //strcat(name, merch_name);
+  ioopm_remove_merch(warehouse, merch_name);
+  //free(merch_name);
+  make_spacing;
+}
 
 void print_options_menu()
 {
@@ -151,33 +168,30 @@ void event_loop(warehouse_t *warehouse)
     input = ask_question_input_int("Input: ");
       switch(input)
       {
-          case 1:
-          make_spacing();  
+          case 1:  
           ioopm_add_merch_interface(warehouse);
-          make_spacing();  
           ioopm_list_merch(warehouse);
-          make_spacing();  
           print_options_menu();
           break;
 
           case 2:
-          make_spacing();  
+          make_spacing;  
           ioopm_list_merch(warehouse);
-          make_spacing();
           print_options_menu();
           break;
           case 3:
-          
-          merch_name = ask_question_string("Which merchendise would you like to remove? \n"); //ask question merch för att kolla om svaret är gilitigt?? 
-          ioopm_remove_merch(warehouse, merch_name);   
-          make_spacing();                             
+          ioopm_remove_merch_interface(warehouse);
+          // merch_name = ask_question_string("Which merchendise would you like to remove? \n"); //ask question merch för att kolla om svaret är gilitigt?? 
+          // ioopm_remove_merch(warehouse, merch_name);                           
           ioopm_list_merch(warehouse);
-          make_spacing();
           print_options_menu();
           break;
-          //ioopm_edit_merch
+
           case 4:
-          printf("TO BE IMPLEMENTED!\n"); break;
+          merch_name = ask_question_string("Which merchendise would you like to edit? \n");
+          ioopm_edit_merch_interface(warehouse, merch_name);
+          
+          break;
           case 5:
           //ioopm_show_stock
           printf("TO BE IMPLEMENTED!\n"); break;
@@ -214,6 +228,6 @@ int main(int argc, char *argv[])
 {
   warehouse_t *warehouse = ioopm_warehouse_create();
   event_loop(warehouse);
-  ioopm_hash_table_destroy(warehouse->items);
+  ioopm_warehouse_destroy(warehouse);
   return 0;
 }
