@@ -122,7 +122,9 @@ void ioopm_add_merch_interface(warehouse_t *warehouse)
   char *name = ask_question_string("Name: ");
   char *desc = ask_question_string("Description: ");
   size_t price = ask_question_int("Price: ");
+  
   ioopm_add_merch(warehouse, name, desc, price);
+  
   make_spacing;
 }
 
@@ -134,17 +136,17 @@ void ioopm_edit_merch_interface(warehouse_t *warehouse, char *merch)
   char *new_desc = ask_question_string("New description: ");
   size_t new_price = ask_question_int("New price: ");
   ioopm_edit_merch(warehouse, merch, new_name, new_desc, new_price);
+  free(new_name);
+  free(new_desc);
   make_spacing;
 }
 
 void ioopm_remove_merch_interface(warehouse_t *warehouse)
 {
   char *merch_name;
-  //char name[255] = {0};
   merch_name = ask_question_string("Which merchendise would you like to remove? \n");
-  //strcat(name, merch_name);
   ioopm_remove_merch(warehouse, merch_name);
-  //free(merch_name);
+  free(merch_name);
   make_spacing;
 }
 
@@ -277,6 +279,8 @@ void event_loop(warehouse_t *warehouse)
       }
 }
 while (input != 0);
+free(merch_name);
+free(shelf_name);
 }
 
 
