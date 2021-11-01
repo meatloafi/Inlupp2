@@ -109,27 +109,40 @@ void ioopm_linked_list_destroy(ioopm_list_t *list)
     free(list);
 }
 
+// void ioopm_linked_list_append(ioopm_list_t *list, elem_t value)
+// {
+//     assert(list);
+//     link_t *new_entry = link_create(value, NULL);
+
+//     if (list->head == NULL)
+//     {
+//         list->head = new_entry;
+//         list->size++;
+//     }
+//     else
+//     {
+//         link_t *current_entry = list->head;
+//         while (current_entry->next != NULL)
+//         {
+//             current_entry = current_entry->next;
+//         }
+//         current_entry->next = new_entry;
+//         list->size++;
+//     }
+// }
+
 void ioopm_linked_list_append(ioopm_list_t *list, elem_t value)
 {
-    assert(list);
-    link_t *new_entry = link_create(value, NULL);
-
-    if (list->head == NULL)
-    {
-        list->head = new_entry;
-        list->size++;
-    }
+    link_t *new_link = link_create(value, NULL);
+    link_t *prev_last = list->tail;
+    if (list->size == 0)
+        list->head = new_link;
     else
-    {
-        link_t *current_entry = list->head;
-        while (current_entry->next != NULL)
-        {
-            current_entry = current_entry->next;
-        }
-        current_entry->next = new_entry;
-        list->size++;
-    }
+        prev_last->next = new_link;
+    list->tail = new_link; //last points to new link
+    ++list->size;
 }
+
 
 void ioopm_linked_list_prepend(ioopm_list_t *list, elem_t value)
 {
@@ -212,18 +225,46 @@ elem_t ioopm_linked_list_get(ioopm_list_t *list, elem_t index)
     return current->value;
 }
 
-bool ioopm_linked_list_contains(ioopm_list_t *list, elem_t element, ioopm_eq_function function)
+// bool ioopm_linked_list_contains(ioopm_list_t *list, elem_t element, ioopm_eq_function function)
+// {
+//     assert(list);
+//     elem_t tmp = int_elem(0);
+//     link_t *cursor = list->head;
+//     while (cursor)
+//     {
+//         if (function(tmp, cursor->value, element))
+//         {
+//             return true;
+//         }
+//         cursor = cursor->next;
+//     }
+//     return false;
+// }
+
+// bool ioopm_linked_list_contains(ioopm_list_t *list, elem_t element)
+// {
+//   if (ioopm_linked_list_is_empty(list)) // if empty return false
+//     return false;
+//   for (link_t *cursor = list->head->next; cursor; cursor = cursor->next)
+//     {
+//       if (list->pred_func(ptr_elem(NULL),cursor->value, element)) 
+//       {
+//         return true;
+//       };
+//     }
+//   return false;
+// }
+
+bool ioopm_linked_list_contains(ioopm_list_t *list, elem_t element)
 {
-    assert(list);
-    elem_t tmp = int_elem(0);
-    link_t *cursor = list->head;
-    while (cursor)
+    if (ioopm_linked_list_is_empty(list))
+        return false;
+    link_t *current_link = list->head;
+    while (current_link)
     {
-        if (function(tmp, cursor->value, element))
-        {
-            return true;
-        }
-        cursor = cursor->next;
+        if (list->pred_func(ptr_elem(NULL), current_link->value, element))
+            return true; //if compare-function returns true
+        current_link = current_link->next;
     }
     return false;
 }
@@ -338,15 +379,20 @@ bool ioopm_iterator_has_next(ioopm_list_iterator_t *iter)
   return iter->current->next != NULL;
 }
 
-elem_t ioopm_iterator_next(ioopm_list_iterator_t *iter)
-{
-  if(iter->current->next == NULL)
-    {
-      printf("Error: %s, ", (strerror(EINVAL))); // Return error message EINVAL, if no entry was found
-      exit(0);                                   // Exit Success (otherwise we dont return a value for all controls paths)
 
+elem_t ioopm_iterator_next(ioopm_list_iterator_t *iter)
+{   
+    link_t *current_link = (iter->current);
+    if(current_link)
+    {
+        iter->current = current_link->next;
+        return ioopm_iterator_current(iter);
     }
-  return iter->current->next->value;
+    else
+    {
+    errno = EINVAL;
+    return (bad_elem);
+    }
 }
 
 void ioopm_iterator_reset(ioopm_list_iterator_t *iter, ioopm_list_t *list)

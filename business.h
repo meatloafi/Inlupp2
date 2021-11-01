@@ -19,6 +19,8 @@ typedef struct merch merch_t;
 
 typedef struct warehouse warehouse_t;
 
+typedef struct cart cart_t;
+
 /// @brief The shelf is the storage space for a merchandise and is itself a link in a linked list.
 typedef struct shelf shelf_t;
 
@@ -30,7 +32,10 @@ warehouse_t *ioopm_warehouse_create();
 
 void ioopm_warehouse_destroy();
 
-shelf_t *create_shelf(char *shelf);
+cart_t *ioopm_cart_create(warehouse_t *warehouse);
+
+shelf_t *create_shelf(char *shelf_name);
+
 void key_array_destroy(char **keys, size_t size);
 
 /// @brief Adds a new item to the warehouse
@@ -64,13 +69,13 @@ bool ioopm_edit_merch(warehouse_t *warehouse, char *merch, char *new_name, char 
 /// @brief Lists where the item is stored as well as the quantity of it in each storage location
 /// @param warehouse The warehouse where the merchandise is stored
 /// @param merch The merch we wish to know the storage locations of (shelf)
-void ioopm_show_stock(warehouse_t *warehouse, char *merch);
+bool ioopm_show_stock(warehouse_t *warehouse, char *merch);
 
 /// @brief Increases the stock of an item by atleast 1
 /// @param warehouse The warehouse in which the merch is stored
 /// @param merch The merch which you want to replenish the stock of
 /// @param quantity The amount of which you wish to increase the stock with
-void ioopm_replenish_stock(warehouse_t *warehouse, merch_t merch, size_t quantity);
+bool ioopm_replenish_stock(warehouse_t *warehouse, char *merch_name, char *shelf_name, int quantity);
 
 /// @brief Creates a shopping cart
 /// @param cart The shopping cart being created
@@ -79,30 +84,30 @@ ioopm_hash_table_t ioopm_create_cart(ioopm_hash_table_t *cart);
 
 /// @brief Removes a shopping cart
 /// @param cart Shopping cart to be removed
-void ioopm_remove_cart(ioopm_hash_table_t *cart);
+void ioopm_remove_cart(cart_t *cart);
 
 /// @brief Adds a quantity of merchandise to the cart
 /// @param cart The cart which one wants to add merchandise to
 /// @param merch The merchandise to be added
 /// @param quantity The requested quantity of that merchandise
-void ioopm_add_to_cart(ioopm_hash_table_t *cart, merch_t merch, size_t quantity);
+bool ioopm_add_to_cart(warehouse_t *warehouse, cart_t *cart, char *merch, size_t quantity);
 
 /// @brief Removes zero or more of a specific merch from a cart
 /// @param cart The cart that merchandise is to be removed from
 /// @param merch The merch to be removed
 /// @param quantity The amount of the merchandise to be removed
-void ioopm_remove_from_cart(ioopm_hash_table_t *cart, merch_t merch, size_t quantity);
+bool ioopm_remove_from_cart(cart_t *cart, char *merch_name, size_t quantity);
 
 /// @brief Calculate the cost of all merchandise in a cart
 /// @param cart The cart 
 /// @return the cost of the shopping cart
-int ioopm_calc_cart_cost(ioopm_hash_table_t *cart);
+size_t ioopm_calc_cost_cart(warehouse_t *warehouse, cart_t *cart);
 
 /// @brief Confirms a purchase and changes the stock of all items purchased. Also removes the shopping cart
 /// @param warehouse The warehouse which contains all items and their current stock
 /// @param cart The cart which is being checked out and which therefore modifies the warehouse according to its purchased contents
 /// @return 
-void ioopm_checkout_cart(ioopm_hash_table_t *warehouse, ioopm_hash_table_t cart);
+void ioopm_checkout_cart(warehouse_t *warehouse, cart_t *cart);
 
 /// @brief Quits the program.
 void ioopm_quit(); 

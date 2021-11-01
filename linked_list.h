@@ -75,7 +75,7 @@ elem_t ioopm_linked_list_get(ioopm_list_t *list, elem_t index);
 /// @param list the linked list
 /// @param element the element sought
 /// @return true if element is in the list, else false
-bool ioopm_linked_list_contains(ioopm_list_t *list, elem_t element, ioopm_eq_function function);
+bool ioopm_linked_list_contains(ioopm_list_t *list, elem_t element);
 
 /// @brief Lookup the number of elements in the linked list in O(1) time
 /// @param list the linked list
