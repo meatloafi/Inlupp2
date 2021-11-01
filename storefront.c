@@ -117,6 +117,17 @@ void ioopm_add_merch_interface(warehouse_t *warehouse)
   make_spacing;
 }
 
+void ioopm_add_cart_interface(warehouse_t *warehouse)
+{
+  make_spacing;
+  int id = ask_question_int("Which cart do you wish to add to (ID)?");
+  cart_t *cart = get_cart(warehouse, id);
+  char *name = ask_question_string("What merchendise do you want to add?: ");
+  int quantity = ask_question_int("What quantity of the merch do you want to add?");
+  ioopm_add_to_cart(warehouse, cart, name, quantity);
+  make_spacing;
+}
+
 
 void ioopm_edit_merch_interface(warehouse_t *warehouse, char *merch)
 {

@@ -48,7 +48,6 @@ struct warehouse
 {
     ioopm_hash_table_t *items;
     ioopm_hash_table_t *shelves;
-    ioopm_list_t *carts;
     size_t item_count;
 };
 
@@ -93,8 +92,6 @@ void test_add_merch()
   result = ioopm_hash_table_lookup(warehouse->items, ptr_elem("test name"), &merch); //id på första tillagda merch -> 1
   CU_ASSERT_TRUE(result);
 
-  // ioopm_linked_list_destroy(((merch_t *)merch.func_point)->location);
-  // free(((merch_t *)merch.func_point)->location);
   ioopm_warehouse_destroy(warehouse);
 }
 
@@ -267,9 +264,10 @@ void test_add_to_cart()
   result = ioopm_hash_table_lookup(cart->items, ptr_elem("test not present in cart"), &merch);
   CU_ASSERT_FALSE(result);
   
-  free(cart); // FIXME: frigör detta i free_all_carts istället
-  free(cart2); // FIXME:
+  
   ioopm_warehouse_destroy(warehouse);
+  ioopm_remove_cart(cart);
+  ioopm_remove_cart(cart2);
 }
 
 
@@ -309,8 +307,8 @@ void test_remove_from_cart()
   result = ioopm_hash_table_lookup(cart->items, ptr_elem("stol"), &merch);
   CU_ASSERT_FALSE(result);  
   
-  free(cart); //FIXME: gör detta i free_all_carts
   ioopm_warehouse_destroy(warehouse);
+  ioopm_remove_cart(cart);
 }
 
 
@@ -333,8 +331,8 @@ void test_cart_cost()
   size_t total_price = ioopm_calc_cost_cart(warehouse, cart);
   CU_ASSERT_EQUAL(total_price, 299);
 
-  free(cart); //FIXME:
   ioopm_warehouse_destroy(warehouse);
+  ioopm_remove_cart(cart);
 }
 
 void test_cart_checkout()
@@ -353,12 +351,11 @@ void test_cart_checkout()
   ioopm_add_to_cart(warehouse, cart, "bord", 12);
   ioopm_add_to_cart(warehouse, cart, "stol", 11);
 
-
   ioopm_checkout_cart(warehouse, cart);
   ioopm_hash_table_lookup(warehouse->items, ptr_elem("bord"), &merch);
   merch_t *merch_info = (merch_t *)merch.func_point;
-  size_t merch_total_stock = merch_info->total_stock;
-  CU_ASSERT_EQUAL(merch_total_stock, 3);
+  size_t updated_stock = merch_info->total_stock;
+  CU_ASSERT_EQUAL(updated_stock, 3);
 
   ioopm_list_t *shelves = merch_info->location;
   elem_t shelf_elem = ioopm_linked_list_get(shelves, int_elem(0));
@@ -380,7 +377,6 @@ void test_cart_checkout()
 /*gdb-> p *(shelf_t *)(*(merch_t *)warehouse->items->buckets[15]->next->value.func_point)->location->head->value.func_point */
   // result = ioopm_hash_table_lookup(warehouse, ptr_elem("bord"), &merch);
 
-  free(cart);
   ioopm_warehouse_destroy(warehouse);
 
 }

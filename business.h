@@ -86,6 +86,9 @@ ioopm_hash_table_t ioopm_create_cart(ioopm_hash_table_t *cart);
 /// @param cart Shopping cart to be removed
 void ioopm_remove_cart(cart_t *cart);
 
+
+cart_t *get_cart(warehouse_t *warehouse, int cart_id);
+
 /// @brief Adds a quantity of merchandise to the cart
 /// @param cart The cart which one wants to add merchandise to
 /// @param merch The merchandise to be added
