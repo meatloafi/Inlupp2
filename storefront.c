@@ -35,8 +35,17 @@ struct warehouse
 {
     ioopm_hash_table_t *items;
     ioopm_hash_table_t *shelves;
+    ioopm_list_t *carts;
     size_t item_count;
+    size_t cart_count;
 };
+
+struct cart
+{
+    ioopm_hash_table_t *items;
+    size_t id;
+};
+
 
 
 void key_array_destroy(char **keys, size_t size)
@@ -117,16 +126,6 @@ void ioopm_add_merch_interface(warehouse_t *warehouse)
   make_spacing;
 }
 
-void ioopm_add_cart_interface(warehouse_t *warehouse)
-{
-  make_spacing;
-  int id = ask_question_int("Which cart do you wish to add to (ID)?");
-  cart_t *cart = get_cart(warehouse, id);
-  char *name = ask_question_string("What merchendise do you want to add?: ");
-  int quantity = ask_question_int("What quantity of the merch do you want to add?");
-  ioopm_add_to_cart(warehouse, cart, name, quantity);
-  make_spacing;
-}
 
 
 void ioopm_edit_merch_interface(warehouse_t *warehouse, char *merch)
@@ -146,6 +145,23 @@ void ioopm_remove_merch_interface(warehouse_t *warehouse)
   //strcat(name, merch_name);
   ioopm_remove_merch(warehouse, merch_name);
   //free(merch_name);
+  make_spacing;
+}
+
+void ioopm_add_cart_interface(warehouse_t *warehouse)
+{
+  make_spacing;
+  int id = ask_question_int("Which cart do you wish to add to (ID)?:  ");
+  cart_t *cart;
+  bool result = get_cart(warehouse, id, &cart);
+  if(result)
+  {
+    char *name = ask_question_string("What merchendise do you want to add?: ");
+    int quantity = ask_question_int("What quantity of the merch do you want to add?");
+    ioopm_add_to_cart(warehouse, cart, name, quantity);
+  }
+  printf("The cart add was not successful. \n");
+  
   make_spacing;
 }
 
@@ -176,6 +192,7 @@ void event_loop(warehouse_t *warehouse)
   char *merch_name;
   char *shelf_name;
   int quantity;
+  cart_t *cart;
   do
   {
     input = ask_question_input_int("Input: ");
@@ -229,13 +246,21 @@ void event_loop(warehouse_t *warehouse)
           make_spacing; 
           break;
           case 7:
-          //ioopm_create_cart
-          printf("TO BE IMPLEMENTED!\n"); break;
+
+          cart = ioopm_cart_create(warehouse);
+          int cart_id = cart->id;
+          printf("A shopping cart has been created \n");
+          printf("Cart ID: %d \n", cart_id);
+          make_spacing; 
+          break;
+
           case 8:
           //ioopm_remove_cart
           printf("TO BE IMPLEMENTED!\n"); break;
           case 9:
-          //ioopm_add_to_cart
+
+          ioopm_add_cart_interface(warehouse);
+          break;
           printf("TO BE IMPLEMENTED!\n"); break;
           case 10:
           //ioopm_remove_from_cart
@@ -247,7 +272,8 @@ void event_loop(warehouse_t *warehouse)
           //ioopm_checkout_cart
           printf("TO BE IMPLEMENTED!\n"); break;
           case 0:
-          printf("Hejdå!\n"); break; 
+          make_spacing;
+          printf("Goodbye!\n"); break; 
       }
 }
 while (input != 0);
