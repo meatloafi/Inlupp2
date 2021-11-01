@@ -34,20 +34,27 @@ struct merch
     size_t price;
     char *description;
     ioopm_list_t *location;
+    size_t total_stock;
 };
 
 
-// struct shelf
-// {
-//     char *shelf;
-//     int stock;
-// };
+struct shelf
+{
+    char *shelf;
+    int stock;
+};
 
 struct warehouse
 {
     ioopm_hash_table_t *items;
     ioopm_hash_table_t *shelves;
     size_t item_count;
+};
+
+struct cart
+{
+    ioopm_hash_table_t *items;
+    int id;
 };
 
 // begin test
@@ -67,6 +74,7 @@ void test_add_merch()
   char *name = "test name";
   char *desc = "test desc";
   size_t price = 13;
+  elem_t merch;
   bool result = NULL;
 
   warehouse_t *warehouse = ioopm_warehouse_create();
@@ -81,22 +89,11 @@ void test_add_merch()
   CU_ASSERT_FALSE(result);
 
   result = NULL;
-  ioopm_hash_table_lookup(warehouse->items, ptr_elem("test name"), &result); //id på första tillagda merch -> 1
+  result = ioopm_hash_table_lookup(warehouse->items, ptr_elem("test name"), &merch); //id på första tillagda merch -> 1
   CU_ASSERT_TRUE(result);
 
   ioopm_warehouse_destroy(warehouse);
 }
-
-//void test_list_merch() TODO;
-
-// void test_list_merch()
-// {
-//   warehouse_t *warehouse = ioopm_warehouse_create();
-//   ioopm_add_merch(warehouse, "Stick", "Sick", 420);
-//   ioopm_list_merch(warehouse);
-
-//   ioopm_warehouse_destroy(warehouse);
-// }
 
 
 // void test_ht_to_list() //kanske lite dum, ska komma på nåt sätt att testa list_merch
@@ -146,6 +143,7 @@ void test_remove_merch()
   char *name2 = "name";
   char *desc = "test desc";
   size_t price = 13;
+  elem_t merch;
   bool result = NULL;
 
   warehouse_t *warehouse = ioopm_warehouse_create();
@@ -160,10 +158,10 @@ void test_remove_merch()
   ht_size = ioopm_hash_table_size(warehouse->items);
   CU_ASSERT_EQUAL(ht_size, 1);
 
-  ioopm_hash_table_lookup(warehouse->items, ptr_elem("test name"), &result);
+  result = ioopm_hash_table_lookup(warehouse->items, ptr_elem("test name"), &merch);
   CU_ASSERT_FALSE(result);
 
-  ioopm_hash_table_lookup(warehouse->items, ptr_elem("name"), &result);
+  result = ioopm_hash_table_lookup(warehouse->items, ptr_elem("name"), &merch);
   CU_ASSERT_TRUE(result);
 
   result = ioopm_hash_table_is_empty(warehouse->items);
@@ -183,158 +181,206 @@ void test_edit_merch()
   char *name_edit = "name";
   char *desc = "test desc";
   char *desc_edit = "edited desc";
+  merch_t *merch;
+  elem_t merch_ptr;
   size_t price = 13;
   bool result = NULL;
 
   warehouse_t *warehouse = ioopm_warehouse_create();
   ioopm_add_merch(warehouse, name, desc, price);
 
-  merch_t *merch = (ioopm_hash_table_lookup(warehouse->items, (elem_t){.extra = name}, &result)).extra;
+  result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name), &merch_ptr);
+  merch = merch_ptr.func_point;
+  CU_ASSERT_FALSE(strcmp(merch->description, desc_edit) == 0);
 
   ioopm_edit_merch(warehouse, name, name_edit, desc_edit, price);
-  merch = (ioopm_hash_table_lookup(warehouse->items, (elem_t){.extra = name_edit}, &result)).extra;
-  char *edited_desc = merch->description;
-  CU_ASSERT_EQUAL(edited_desc, desc_edit);
 
-  ioopm_hash_table_lookup(warehouse->items, ptr_elem(name), &result);
+  result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name), &merch_ptr);
+  merch = merch_ptr.func_point;
+  CU_ASSERT_EQUAL(merch->description, desc_edit);
+
+  result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name_edit), &merch_ptr); //ska vara true, key har inte uppdaterats, value rätt men key fel
+  CU_ASSERT_TRUE(result);
+  result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name), &merch_ptr); //ska vara false, key har inte uppdaterats, value rätt men key fel
   CU_ASSERT_FALSE(result);
 
   ioopm_warehouse_destroy(warehouse);
 }
-/*
-void test_remove1()
-{ ioopm_hash_table_t *ht = ioopm_hash_table_create(0, 0, NULL, NULL, NULL);
-  elem_t valtest = {.number = 1, .extra = "a"};
-  ioopm_hash_table_insert(ht, valtest, valtest);
-  ioopm_hash_table_remove(ht, valtest);
+
+
+void test_replenish()
+{
+  warehouse_t *warehouse = ioopm_warehouse_create();
+  // ioopm_add_merch(warehouse, "test name", "test desc", 25);
+
+  // merch_t *merch;
+  // ioopm_hash_table_lookup(warehouse->items, ptr_elem("test name"), &merch);
+  // // ioopm_linked_list_contains(merch->location, );
+
+  // // ioopm_list_t *stock = ioopm_hash_table_values(warehouse->items);
+  // // elem_t current_val = ioopm_linked_list_get(stock, int_ptr(0));
+
+  // // int current_stock = ((merch_t *)current_val.func_point);
+  // // CU_ASSERT_TRUE();
+
+
+  // ioopm_replenish_stock(warehouse, "test name", "E22", 12);
+
+  // ioopm_hash_table_lookup(warehouse->items, ptr_elem("test name"), &merch);
+
+
+  ioopm_warehouse_destroy(warehouse);
+}
+
+
+void test_add_to_cart()
+{
+  elem_t merch;
   bool result = NULL;
-  ioopm_hash_table_lookup(ht, valtest, &result);
+
+  warehouse_t *warehouse = ioopm_warehouse_create();
+  ioopm_add_merch(warehouse, "test name", "test desc", 13);
+  ioopm_add_merch(warehouse, "test name2", "test desc", 13);
+
+  cart_t *cart = ioopm_cart_create(warehouse);
+  cart_t *cart2 = ioopm_cart_create(warehouse);
+
+  ioopm_replenish_stock(warehouse, "test name", "b12", 15);
+  ioopm_replenish_stock(warehouse, "test name2", "b12", 11);
+  ioopm_add_to_cart(warehouse, cart, "test name", 12);
+  ioopm_add_to_cart(warehouse, cart2, "test name", 12);
+  ioopm_add_to_cart(warehouse, cart2, "test name2", 11);
+
+  result = ioopm_hash_table_is_empty(cart->items);
   CU_ASSERT_FALSE(result);
-  ioopm_hash_table_destroy(ht);
-}
 
-void test_table_size1()
-{ ioopm_hash_table_t *ht = ioopm_hash_table_create(0, 0, NULL, NULL, NULL);
-  elem_t keytest = {.number = 12};
-  elem_t valtest = {.extra = "abc"};
-  ioopm_hash_table_insert(ht, keytest, valtest);
-  int size = ioopm_hash_table_size(ht);
-  CU_ASSERT_EQUAL(size, 1)
-  ioopm_hash_table_destroy(ht);
-}
-
-void test_table_size2()
-{ ioopm_hash_table_t *ht = ioopm_hash_table_create(0, 0, NULL, NULL, NULL);
-  elem_t valtest = {.extra = "abc"};
-  ioopm_hash_table_insert(ht, int_elem(1), valtest);
-  ioopm_hash_table_insert(ht, int_elem(2), valtest);
-  ioopm_hash_table_insert(ht, int_elem(3), valtest);
-  int size = ioopm_hash_table_size(ht);
-  CU_ASSERT_EQUAL(size, 3)
-  ioopm_hash_table_destroy(ht);
-}
-
-void test_table_size3()
-{ ioopm_hash_table_t *ht = ioopm_hash_table_create(0, 0, NULL, NULL, NULL);
-  int size = ioopm_hash_table_size(ht);
-  CU_ASSERT_EQUAL(size, 0)
-  ioopm_hash_table_destroy(ht);
-}
-
-void test_table_empty1()
-{ ioopm_hash_table_t *ht = ioopm_hash_table_create(0, 0, NULL, NULL, NULL);
-  elem_t keytest = {.number = 12};
-  elem_t valtest = {.extra = "abc"};
-  ioopm_hash_table_insert(ht, keytest, valtest);
-  int is_empty = ioopm_hash_table_is_empty(ht);
-  CU_ASSERT_FALSE(is_empty);
-  ioopm_hash_table_destroy(ht);
-}
-
-void test_table_empty2()
-{ 
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(0, 0, NULL, NULL, NULL);
-  elem_t keytest = {.number = 12};
-  elem_t valtest = {.extra = "abc"};
-  ioopm_hash_table_insert(ht, keytest, valtest);
-  ioopm_hash_table_remove(ht, keytest);
-  int is_empty = ioopm_hash_table_is_empty(ht);
-  CU_ASSERT_TRUE(is_empty);
-  ioopm_hash_table_destroy(ht);
-}
-
-void test_table_clear1()
-{ ioopm_hash_table_t *ht = ioopm_hash_table_create(0, 0, NULL, NULL, NULL);
-  elem_t valtest = {.extra = "abc"};
-  ioopm_hash_table_insert(ht, int_elem(1), valtest);
-  ioopm_hash_table_insert(ht, int_elem(2), valtest);
-  ioopm_hash_table_insert(ht, int_elem(3), valtest);
-  ioopm_hash_table_clear(ht);
-  bool is_empty = ioopm_hash_table_is_empty(ht);
-  CU_ASSERT_TRUE(is_empty);
-  ioopm_hash_table_destroy(ht);
-}
-
-void test_has_value1()
-{
-   ioopm_hash_table_t *ht = ioopm_hash_table_create(0, 0, NULL, NULL, NULL);
-   elem_t keytest = {.number = 12};
-   elem_t valtest = {.extra = "a"};
-   elem_t valtest2 = {.extra = "awdwad"};  
-   ioopm_hash_table_insert(ht, keytest, valtest);
-   bool result1 = ioopm_hash_table_has_value(ht, valtest);
-   bool result2 = ioopm_hash_table_has_value(ht, valtest2);
-   CU_ASSERT_TRUE(result1);
-   CU_ASSERT_FALSE(result2);
-   ioopm_hash_table_destroy(ht);
-}
-
-void test_has_key1()
-{
-   ioopm_hash_table_t *ht = ioopm_hash_table_create(0, 0, NULL, NULL, NULL);
-   elem_t keytest = {.number = 12};
-   elem_t valtest = {.extra = "a"};
-   ioopm_hash_table_insert(ht, keytest, valtest);
-   CU_ASSERT_TRUE(ioopm_hash_table_has_key(ht, keytest));
-   CU_ASSERT_FALSE(ioopm_hash_table_has_key(ht, int_elem(3)));
-   ioopm_hash_table_destroy(ht);
-}
-
-void test_apply_to_all()
-{
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(0, 0, NULL, NULL, NULL);
-
-  for(int i = 0; i < 17; i++)
-  {
-  ioopm_hash_table_insert(ht, (elem_t) {.number = i},ptr_elem("s"));
-  }
-  elem_t valtest = {.extra = "a"};
-  bool result = NULL;
-  ioopm_hash_table_apply_to_all(ht, value_insert, &valtest);
-  for (int i = 0; i < 17; i++)
-  {
-      ioopm_hash_table_lookup(ht, int_elem(i), &result);
-      if (!result)
-      {
-          break;
-      }
-  }
+  result = ioopm_hash_table_lookup(cart->items, ptr_elem("test name"), &merch);
   CU_ASSERT_TRUE(result);
-  ioopm_hash_table_destroy(ht);
+  result = ioopm_hash_table_lookup(cart2->items, ptr_elem("test name"), &merch);
+  CU_ASSERT_TRUE(result);
+  result = ioopm_hash_table_lookup(cart2->items, ptr_elem("test name2"), &merch);
+  CU_ASSERT_TRUE(result);
+
+  result = ioopm_hash_table_lookup(cart->items, ptr_elem("test not present in cart"), &merch);
+  CU_ASSERT_FALSE(result);
+  
+  
+  ioopm_warehouse_destroy(warehouse);
+  ioopm_remove_cart(cart);
+  ioopm_remove_cart(cart2);
 }
 
-void test_resize()
+
+void test_remove_from_cart()
 {
-  ioopm_hash_table_t *ht = ioopm_hash_table_create(0,0,NULL,NULL,NULL);
-  for(int i = 0; i < 18; i++)
-  {
-  ioopm_hash_table_insert(ht, (elem_t) {.number = i},ptr_elem("s"));
-  }
-  //hash_table_resize(ht);
-  CU_ASSERT_EQUAL(ht->capacity,31)
-  ioopm_hash_table_destroy(ht);
+  elem_t merch;
+  bool result = NULL;
+
+  warehouse_t *warehouse = ioopm_warehouse_create();
+  ioopm_add_merch(warehouse, "bord", "trä", 13);
+  ioopm_add_merch(warehouse, "stol", "trä", 13);
+
+  cart_t *cart = ioopm_cart_create(warehouse);
+
+  ioopm_replenish_stock(warehouse, "bord", "b12", 15);
+  ioopm_replenish_stock(warehouse, "stol", "b12", 11);
+  ioopm_add_to_cart(warehouse, cart, "bord", 12);
+  ioopm_add_to_cart(warehouse, cart, "stol", 11);
+
+  result = ioopm_hash_table_lookup(cart->items, ptr_elem("bord"), &merch);
+  CU_ASSERT_TRUE(result);
+  result = ioopm_hash_table_lookup(cart->items, ptr_elem("stol"), &merch);
+  CU_ASSERT_TRUE(result);
+
+  ioopm_remove_from_cart(cart, "bord", 12);
+  result = ioopm_hash_table_lookup(cart->items, ptr_elem("bord"), &merch);
+  CU_ASSERT_FALSE(result);
+
+  ioopm_remove_from_cart(cart, "stol", 9);
+  result = ioopm_hash_table_lookup(cart->items, ptr_elem("stol"), &merch);
+  CU_ASSERT_TRUE(result);
+
+  result = ioopm_hash_table_is_empty(cart->items);
+  CU_ASSERT_FALSE(result);
+
+  ioopm_remove_from_cart(cart, "stol", 2);
+  result = ioopm_hash_table_lookup(cart->items, ptr_elem("stol"), &merch);
+  CU_ASSERT_FALSE(result);  
+  
+  ioopm_warehouse_destroy(warehouse);
+  ioopm_remove_cart(cart);
 }
-*/
+
+
+void test_cart_cost()
+{
+  // elem_t merch;
+  // bool result = NULL;
+
+  warehouse_t *warehouse = ioopm_warehouse_create();
+  ioopm_add_merch(warehouse, "bord", "trä", 13);
+  ioopm_add_merch(warehouse, "stol", "trä", 13);
+
+  cart_t *cart = ioopm_cart_create(warehouse);
+
+  ioopm_replenish_stock(warehouse, "bord", "b12", 15);
+  ioopm_replenish_stock(warehouse, "stol", "b12", 11);
+  ioopm_add_to_cart(warehouse, cart, "bord", 12);
+  ioopm_add_to_cart(warehouse, cart, "stol", 11);
+
+  size_t total_price = ioopm_calc_cost_cart(warehouse, cart);
+  CU_ASSERT_EQUAL(total_price, 299);
+
+  ioopm_warehouse_destroy(warehouse);
+  ioopm_remove_cart(cart);
+}
+
+void test_cart_checkout()
+{
+  elem_t merch;
+  bool result = NULL;
+
+  warehouse_t *warehouse = ioopm_warehouse_create();
+  ioopm_add_merch(warehouse, "bord", "trä", 13);
+  ioopm_add_merch(warehouse, "stol", "trä", 13);
+
+  cart_t *cart = ioopm_cart_create(warehouse);
+
+  ioopm_replenish_stock(warehouse, "bord", "b12", 15);
+  ioopm_replenish_stock(warehouse, "stol", "b12", 11);
+  ioopm_add_to_cart(warehouse, cart, "bord", 12);
+  ioopm_add_to_cart(warehouse, cart, "stol", 11);
+
+  ioopm_checkout_cart(warehouse, cart);
+  ioopm_hash_table_lookup(warehouse->items, ptr_elem("bord"), &merch);
+  merch_t *merch_info = (merch_t *)merch.func_point;
+  size_t updated_stock = merch_info->total_stock;
+  CU_ASSERT_EQUAL(updated_stock, 3);
+
+  ioopm_list_t *shelves = merch_info->location;
+  elem_t shelf_elem = ioopm_linked_list_get(shelves, int_elem(0));
+  shelf_t *current_shelf = (shelf_t *)shelf_elem.func_point;
+  size_t shelf_stock = current_shelf->stock;
+  CU_ASSERT_EQUAL(shelf_stock, 3);
+  size_t size = ioopm_linked_list_size(shelves);
+  CU_ASSERT_EQUAL(size, 1);
+
+  ioopm_hash_table_lookup(warehouse->items, ptr_elem("stol"), &merch);
+  merch_info = (merch_t *)merch.func_point;
+  shelves = merch_info->location;
+  result = ioopm_linked_list_contains(shelves, ptr_elem("b12"));
+  CU_ASSERT_FALSE(result);
+  
+  size = ioopm_linked_list_size(shelves);
+  CU_ASSERT_EQUAL(size, 0);
+  
+/*gdb-> p *(shelf_t *)(*(merch_t *)warehouse->items->buckets[15]->next->value.func_point)->location->head->value.func_point */
+  // result = ioopm_hash_table_lookup(warehouse, ptr_elem("bord"), &merch);
+
+  ioopm_warehouse_destroy(warehouse);
+
+}
+
 // end test
 
 int main()
@@ -358,19 +404,19 @@ int main()
     
     /*(NULL == CU_add_test(store_test_suite1, "test ht_to_list", test_ht_to_list))||*/
     
-    (NULL == CU_add_test(store_test_suite1, "test ioopm_remove_merch", test_remove_merch))/*|| 
+    (NULL == CU_add_test(store_test_suite1, "test ioopm_remove_merch", test_remove_merch))|| 
   
     (NULL == CU_add_test(store_test_suite1, "test ioopm_edit_merch", test_edit_merch))||
     
-    (NULL == CU_add_test(HT_test_suite1, "test remove1", test_remove1))||
+    (NULL == CU_add_test(store_test_suite1, "test ioopm_replenish_", test_replenish))||
     
-    (NULL == CU_add_test(HT_test_suite1, "test table size 1", test_table_size1))||
+    (NULL == CU_add_test(store_test_suite1, "test ioopm_add_to_cart", test_add_to_cart))||
     
-    (NULL == CU_add_test(HT_test_suite1, "test table size 2", test_table_size2))||
+    (NULL == CU_add_test(store_test_suite1, "test ioopm_remove_from_cart", test_remove_from_cart))||
     
-    (NULL == CU_add_test(HT_test_suite1, "test table size 3", test_table_size3))||
+    (NULL == CU_add_test(store_test_suite1, "test ioopm_calc_cart_cost", test_cart_cost))||
     
-    (NULL == CU_add_test(HT_test_suite1, "test table empty 1", test_table_empty1))||
+    (NULL == CU_add_test(store_test_suite1, "test ioopm_cart_checkout", test_cart_checkout))/*||
     
     (NULL == CU_add_test(HT_test_suite1, "test table empty 2", test_table_empty2))||
     

@@ -117,6 +117,17 @@ void ioopm_add_merch_interface(warehouse_t *warehouse)
   make_spacing;
 }
 
+void ioopm_add_cart_interface(warehouse_t *warehouse)
+{
+  make_spacing;
+  int id = ask_question_int("Which cart do you wish to add to (ID)?");
+  cart_t *cart = get_cart(warehouse, id);
+  char *name = ask_question_string("What merchendise do you want to add?: ");
+  int quantity = ask_question_int("What quantity of the merch do you want to add?");
+  ioopm_add_to_cart(warehouse, cart, name, quantity);
+  make_spacing;
+}
+
 
 void ioopm_edit_merch_interface(warehouse_t *warehouse, char *merch)
 {
@@ -163,6 +174,8 @@ void event_loop(warehouse_t *warehouse)
   
   int input;
   char *merch_name;
+  char *shelf_name;
+  int quantity;
   do
   {
     input = ask_question_input_int("Input: ");
@@ -190,14 +203,31 @@ void event_loop(warehouse_t *warehouse)
           case 4:
           merch_name = ask_question_string("Which merchendise would you like to edit? \n");
           ioopm_edit_merch_interface(warehouse, merch_name);
-          
+          ioopm_list_merch(warehouse);
+
           break;
           case 5:
-          //ioopm_show_stock
-          printf("TO BE IMPLEMENTED!\n"); break;
+          make_spacing; 
+          merch_name = ask_question_string("Which merchendise would you like to show the locations of? \n");
+          ioopm_show_stock(warehouse, merch_name);
+          make_spacing; 
+          
+          break;
           case 6:
-          //ioopm_replenish_stock
-          printf("TO BE IMPLEMENTED!\n"); break;
+          merch_name = ask_question_string("Which merchendise would you like to replenish the stock of? \n");
+          shelf_name = ask_question_shelf("Which shelf would you like to replenish? \n");
+          quantity = ask_question_int("Input new quantity \n");
+          bool result = ioopm_replenish_stock(warehouse, merch_name, shelf_name, quantity);
+          if(result)
+          {
+            printf("The replenish was successfull!\n");
+          }
+          else
+          {
+            printf("The replenish was unsuccessfull.\n");
+          }
+          make_spacing; 
+          break;
           case 7:
           //ioopm_create_cart
           printf("TO BE IMPLEMENTED!\n"); break;
