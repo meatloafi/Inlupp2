@@ -84,7 +84,7 @@ ioopm_hash_table_t ioopm_create_cart(ioopm_hash_table_t *cart);
 
 /// @brief Removes a shopping cart
 /// @param cart Shopping cart to be removed
-void ioopm_remove_cart(cart_t *cart);
+void ioopm_remove_cart(warehouse_t *warehouse, cart_t *cart);
 
 
 bool get_cart(warehouse_t *warehouse, int cart_id, cart_t **cart);
@@ -115,7 +115,7 @@ void ioopm_checkout_cart(warehouse_t *warehouse, cart_t *cart);
 /// @brief Quits the program.
 void ioopm_quit(); 
 
-
+bool ioopm_list_carts(warehouse_t *warehouse);
 /*
 /// @brief OPTIONAL Undos an action.
 /// @param 

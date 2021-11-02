@@ -171,6 +171,24 @@ void ioopm_add_cart_interface(warehouse_t *warehouse)
 void ioopm_remove_cart_interface(warehouse_t *warehouse)
 {
   make_spacing;
+  int id = ask_question_int("Which cart do you wish to remove?:  ");
+  cart_t *cart;
+  bool result = get_cart(warehouse, id, &cart);
+  if(result)
+  {
+    ioopm_remove_cart(warehouse, cart);
+  }
+  else
+  {
+  printf("The cart remove was not successful. \n");
+  }
+
+  make_spacing;
+}
+
+void ioopm_remove_from_cart_interface(warehouse_t *warehouse)
+{
+  make_spacing;
   int id = ask_question_int("Which cart do you wish to remove from(ID)?:  ");
   cart_t *cart;
   bool result = get_cart(warehouse, id, &cart);
@@ -196,6 +214,27 @@ void ioopm_remove_cart_interface(warehouse_t *warehouse)
   make_spacing;
 }
 
+
+void ioopm_calculate_cost_interface(warehouse_t *warehouse)
+{
+  make_spacing;
+  int id = ask_question_int("Which cart do you wish to calculate the cost of:  ");
+  cart_t *cart;
+  bool result = get_cart(warehouse, id, &cart);
+  if(result)
+  {
+    ioopm_calc_cost_cart(warehouse, cart);
+    size_t total_price = ioopm_calc_cost_cart(warehouse, cart);
+    printf("The price of all items in cart: %ld is %ld. \n", cart->id, total_price);
+  }
+  else
+  {
+  printf("The cost calculation was not successful. \n");
+  }
+
+  make_spacing;
+}
+
 void print_options_menu()
 {
   printf("1: Add merchendise\n");
@@ -208,8 +247,9 @@ void print_options_menu()
   printf("8: Remove cart\n");
   printf("9: Add to cart\n");
   printf("10: Remove from cart\n");
-  printf("11: Calculate Cost\n");
-  printf("12: Checkout\n");
+  printf("11: List carts and their contents\n");
+  printf("12: Calculate Cost\n");
+  printf("13: Checkout\n");
   printf("0: QUIT\n");
 }
 
@@ -241,9 +281,8 @@ void event_loop(warehouse_t *warehouse)
           print_options_menu();
           break;
           case 3:
-          ioopm_remove_merch_interface(warehouse);
-          // merch_name = ask_question_string("Which merchendise would you like to remove? \n"); //ask question merch för att kolla om svaret är gilitigt?? 
-          // ioopm_remove_merch(warehouse, merch_name);                           
+          ioopm_remove_merch_interface(warehouse);  
+
           ioopm_list_merch(warehouse);
           print_options_menu();
           break;
@@ -283,26 +322,40 @@ void event_loop(warehouse_t *warehouse)
           printf("A shopping cart has been created \n");
           printf("Cart ID: %d \n", cart_id);
           make_spacing; 
-          break;
 
+          break;
           case 8:
           ioopm_remove_cart_interface(warehouse);
-
           break;
+
           case 9:
-
           ioopm_add_cart_interface(warehouse);
+          ioopm_list_carts(warehouse);
+          make_spacing; 
+
           break;
-          printf("TO BE IMPLEMENTED!\n"); break;
           case 10:
-          //ioopm_remove_from_cart
-          printf("TO BE IMPLEMENTED!\n"); break;
+
+          ioopm_remove_from_cart_interface(warehouse);
+          ioopm_list_carts(warehouse);
+          make_spacing; 
+          break;
+
           case 11:
-          //ioopm_calc_cart_cost
-          printf("TO BE IMPLEMENTED!\n"); break;
+
+          ioopm_list_carts(warehouse);
+          make_spacing; 
+          break;
+          
           case 12:
+          ioopm_calculate_cost_interface(warehouse);
+          break;
+          
+          case 13:
           //ioopm_checkout_cart
           printf("TO BE IMPLEMENTED!\n"); break;
+
+
           case 0:
           make_spacing;
           printf("Goodbye!\n"); break; 

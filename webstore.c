@@ -180,9 +180,10 @@ cart_t *ioopm_cart_create(warehouse_t *warehouse)
     return cart;
 }
 
-void ioopm_remove_cart(cart_t *cart)
+void ioopm_remove_cart(warehouse_t *warehouse, cart_t *cart)
 {
     ioopm_hash_table_destroy(cart->items);
+    ioopm_linked_list_remove(warehouse->carts, int_elem(cart->id));
     free(cart);
 }
 
@@ -692,4 +693,59 @@ void ioopm_checkout_cart(warehouse_t *warehouse, cart_t *cart)
     ioopm_linked_list_destroy(names);
     ioopm_linked_list_destroy(quantities);
     // ioopm_remove_cart(cart);
+}
+
+void print_carts (warehouse_t *warehouse)
+{
+    if (!ioopm_linked_list_is_empty(warehouse->carts))
+    {
+        ioopm_list_iterator_t *iter_carts = ioopm_list_iterator(warehouse->carts);
+        int i = 1;
+        int counter;
+        
+        cart_t *current_cart = ioopm_iterator_current(iter_carts).func_point;
+        ioopm_list_t *item_values = ioopm_hash_table_keys(current_cart->items);
+
+        printf(" \n Cart no.%d - ID: %d\n",i, current_cart->id);
+
+        if(!ioopm_hash_table_is_empty(current_cart->items))
+            {   
+                printf(" \n Merch in cart:\n"); 
+                for (counter = 0; counter < ioopm_linked_list_size(item_values); counter++)
+                {
+                   char *current_merch = ioopm_linked_list_get(item_values, int_elem(counter)).func_point;
+                   printf("\n Merch no.%d : %s \n",counter+1, current_merch);
+                }                
+        }      
+        while (ioopm_iterator_has_next(iter_carts))
+                {
+                    ioopm_iterator_next(iter_carts);
+                    current_cart = ioopm_iterator_current(iter_carts).func_point;
+                    if(!ioopm_hash_table_is_empty(current_cart->items))
+                    {
+                        printf(" \n Merch in cart:\n"); 
+                        for (counter = 0; counter < ioopm_linked_list_size(item_values); counter++)
+                        {
+                            char *current_merch = ioopm_linked_list_get(item_values, int_elem(counter)).func_point;
+                            printf("\n Merch no.%d : %s \n",counter+1, current_merch);
+                        }
+                    }
+                    printf(" \n Cart no.%d - ID: %d\n",i + 1, current_cart->id);
+                    i++;    
+                }
+        ioopm_iterator_destroy(iter_carts);
+    }
+}
+
+
+
+bool ioopm_list_carts(warehouse_t *warehouse)
+{
+    if(ioopm_linked_list_is_empty(warehouse->carts))
+    {
+        printf("No carts available\n");
+        return true;
+    }
+    print_carts(warehouse);
+    return true;
 }
