@@ -109,39 +109,39 @@ void ioopm_linked_list_destroy(ioopm_list_t *list)
     free(list);
 }
 
-// void ioopm_linked_list_append(ioopm_list_t *list, elem_t value)
-// {
-//     assert(list);
-//     link_t *new_entry = link_create(value, NULL);
-
-//     if (list->head == NULL)
-//     {
-//         list->head = new_entry;
-//         list->size++;
-//     }
-//     else
-//     {
-//         link_t *current_entry = list->head;
-//         while (current_entry->next != NULL)
-//         {
-//             current_entry = current_entry->next;
-//         }
-//         current_entry->next = new_entry;
-//         list->size++;
-//     }
-// }
-
 void ioopm_linked_list_append(ioopm_list_t *list, elem_t value)
 {
-    link_t *new_link = link_create(value, NULL);
-    link_t *prev_last = list->tail;
-    if (list->size == 0)
-        list->head = new_link;
+    assert(list);
+    link_t *new_entry = link_create(value, NULL);
+
+    if (list->head == NULL)
+    {
+        list->head = new_entry;
+        list->size++;
+    }
     else
-        prev_last->next = new_link;
-    list->tail = new_link; //last points to new link
-    ++list->size;
+    {
+        link_t *current_entry = list->head;
+        while (current_entry->next != NULL)
+        {
+            current_entry = current_entry->next;
+        }
+        current_entry->next = new_entry;
+        list->size++;
+    }
 }
+
+// void ioopm_linked_list_append(ioopm_list_t *list, elem_t value)
+// {
+//     link_t *new_link = link_create(value, NULL);
+//     link_t *prev_last = list->tail;
+//     if (list->size == 0)
+//         list->head = new_link;
+//     else
+//         prev_last->next = new_link;
+//     list->tail = new_link; //last points to new link
+//     ++list->size;
+// }
 
 
 void ioopm_linked_list_prepend(ioopm_list_t *list, elem_t value)

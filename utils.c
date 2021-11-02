@@ -47,7 +47,7 @@ bool is_input_int(char *str)
     if(is_number(str))   
     {
         int i = atoi(str);
-        if ((i >= 0 && i <= 12))
+        if ((i >= 0 && i <= 13))
         {
             return true;
         }
