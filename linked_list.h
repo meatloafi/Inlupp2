@@ -70,6 +70,7 @@ elem_t ioopm_linked_list_remove(ioopm_list_t *list, elem_t index);
 /// @param index the position in the list
 /// @return the value at the given position
 elem_t ioopm_linked_list_get(ioopm_list_t *list, elem_t index);
+elem_t ioopm_linked_list_get2(ioopm_list_t *list, const size_t index);
 
 /// @brief Test if an element is in the list
 /// @param list the linked list

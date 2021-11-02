@@ -225,6 +225,26 @@ elem_t ioopm_linked_list_get(ioopm_list_t *list, elem_t index)
     return current->value;
 }
 
+elem_t ioopm_linked_list_get2(ioopm_list_t *list, const size_t index)
+{
+  ioopm_list_iterator_t *iter = ioopm_list_iterator(list);
+  if (list->size > index && index >= 0 && !ioopm_linked_list_is_empty(list))
+    {
+      for (int i = 0; i < index; i++)
+      {
+        ioopm_iterator_next(iter);
+      }
+    elem_t element = ioopm_iterator_current(iter);
+    ioopm_iterator_destroy(iter);
+    return element;
+    } 
+  else
+    {
+    errno = EINVAL;
+    return (bad_elem);
+    }
+}
+
 // bool ioopm_linked_list_contains(ioopm_list_t *list, elem_t element, ioopm_eq_function function)
 // {
 //     assert(list);

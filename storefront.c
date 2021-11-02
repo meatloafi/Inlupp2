@@ -124,7 +124,7 @@ void ioopm_add_merch_interface(warehouse_t *warehouse)
   size_t price = ask_question_int("Price: ");
   
   ioopm_add_merch(warehouse, name, desc, price);
-  
+
   make_spacing;
 }
 
@@ -136,8 +136,6 @@ void ioopm_edit_merch_interface(warehouse_t *warehouse, char *merch)
   char *new_desc = ask_question_string("New description: ");
   size_t new_price = ask_question_int("New price: ");
   ioopm_edit_merch(warehouse, merch, new_name, new_desc, new_price);
-  free(new_name);
-  free(new_desc);
   make_spacing;
 }
 
@@ -146,7 +144,7 @@ void ioopm_remove_merch_interface(warehouse_t *warehouse)
   char *merch_name;
   merch_name = ask_question_string("Which merchendise would you like to remove? \n");
   ioopm_remove_merch(warehouse, merch_name);
-  free(merch_name);
+  //free(merch_name);
   make_spacing;
 }
 
@@ -159,11 +157,39 @@ void ioopm_add_cart_interface(warehouse_t *warehouse)
   if(result)
   {
     char *name = ask_question_string("What merchendise do you want to add?: ");
-    int quantity = ask_question_int("What quantity of the merch do you want to add?");
+    int quantity = ask_question_int("What quantity of the merch do you want to add?: ");
     ioopm_add_to_cart(warehouse, cart, name, quantity);
   }
   printf("The cart add was not successful. \n");
   
+  make_spacing;
+}
+
+void ioopm_remove_cart_interface(warehouse_t *warehouse)
+{
+  make_spacing;
+  int id = ask_question_int("Which cart do you wish to remove from(ID)?:  ");
+  cart_t *cart;
+  bool result = get_cart(warehouse, id, &cart);
+  if(result)
+  { char *name = ask_question_string("What merchendise do you want to remove?: ");
+    int quantity = ask_question_int("What quantity of the merch do you want to remove?: ");
+
+    result = ioopm_remove_from_cart(cart, name, quantity);
+    if(result)
+    {
+      printf("The merch has successfully been removed from the cart!\n ");
+    }
+    else
+    { 
+      printf("The merch could not be removed from the cart\n ");
+    }
+    
+  }
+  else 
+  {
+    printf("The cart was not removed\n ");
+  }
   make_spacing;
 }
 
@@ -257,8 +283,9 @@ void event_loop(warehouse_t *warehouse)
           break;
 
           case 8:
-          //ioopm_remove_cart
-          printf("TO BE IMPLEMENTED!\n"); break;
+          ioopm_remove_cart_interface(warehouse);
+
+          break;
           case 9:
 
           ioopm_add_cart_interface(warehouse);
@@ -279,8 +306,8 @@ void event_loop(warehouse_t *warehouse)
       }
 }
 while (input != 0);
-free(merch_name);
-free(shelf_name);
+// free(merch_name);
+// free(shelf_name);
 }
 
 

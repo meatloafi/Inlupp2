@@ -249,7 +249,7 @@ void test_add_to_cart()
   cart_t *cart2 = ioopm_cart_create(warehouse);
 
   ioopm_replenish_stock(warehouse, "test name", "b12", 15);
-  ioopm_replenish_stock(warehouse, "test name2", "b12", 11);
+  ioopm_replenish_stock(warehouse, "test name2", "b13", 11);
   ioopm_add_to_cart(warehouse, cart, "test name", 12);
   ioopm_add_to_cart(warehouse, cart2, "test name", 12);
   ioopm_add_to_cart(warehouse, cart2, "test name2", 11);
@@ -285,7 +285,7 @@ void test_remove_from_cart()
   cart_t *cart = ioopm_cart_create(warehouse);
 
   ioopm_replenish_stock(warehouse, "bord", "b12", 15);
-  ioopm_replenish_stock(warehouse, "stol", "b12", 11);
+  ioopm_replenish_stock(warehouse, "stol", "b13", 11);
   ioopm_add_to_cart(warehouse, cart, "bord", 12);
   ioopm_add_to_cart(warehouse, cart, "stol", 11);
 
@@ -326,7 +326,7 @@ void test_cart_cost()
   cart_t *cart = ioopm_cart_create(warehouse);
 
   ioopm_replenish_stock(warehouse, "bord", "b12", 15);
-  ioopm_replenish_stock(warehouse, "stol", "b12", 11);
+  ioopm_replenish_stock(warehouse, "stol", "b13", 11);
   ioopm_add_to_cart(warehouse, cart, "bord", 12);
   ioopm_add_to_cart(warehouse, cart, "stol", 11);
 
@@ -349,22 +349,28 @@ void test_cart_checkout()
   cart_t *cart = ioopm_cart_create(warehouse);
 
   ioopm_replenish_stock(warehouse, "bord", "b12", 15);
-  ioopm_replenish_stock(warehouse, "stol", "b12", 11);
+  ioopm_replenish_stock(warehouse, "stol", "b13", 11);
   ioopm_add_to_cart(warehouse, cart, "bord", 12);
   ioopm_add_to_cart(warehouse, cart, "stol", 11);
 
 
   ioopm_checkout_cart(warehouse, cart);
   ioopm_hash_table_lookup(warehouse->items, ptr_elem("bord"), &merch);
-  merch_t *merch_info = (merch_t *)merch.func_point;
+  merch_t *merch_info = merch.func_point;
   size_t merch_total_stock = merch_info->total_stock;
   CU_ASSERT_EQUAL(merch_total_stock, 3);
 
   ioopm_list_t *shelves = merch_info->location;
-  elem_t shelf_elem = ioopm_linked_list_get(shelves, int_elem(0));
-  shelf_t *current_shelf = (shelf_t *)shelf_elem.func_point;
-  size_t shelf_stock = current_shelf->stock;
+
+  char *shelf_name = ioopm_linked_list_get(shelves, int_elem(0)).func_point; //b12
+  elem_t shelf_elem;
+  ioopm_hash_table_lookup(warehouse->shelves, ptr_elem(shelf_name), &shelf_elem);
+  shelf_t *current_shelf = shelf_elem.func_point;
+  printf("\n%d \n",current_shelf->stock);
+  
+  int shelf_stock = current_shelf->stock;
   CU_ASSERT_EQUAL(shelf_stock, 3);
+
   size_t size = ioopm_linked_list_size(shelves);
   CU_ASSERT_EQUAL(size, 1);
 
