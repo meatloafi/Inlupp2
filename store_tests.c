@@ -41,7 +41,8 @@ struct merch
 struct shelf
 {
     char *shelf;
-    int stock;
+    char *item_in_shelf;
+    size_t stock;
 };
 
 struct warehouse
@@ -50,6 +51,7 @@ struct warehouse
     ioopm_hash_table_t *shelves;
     ioopm_list_t *carts;
     size_t item_count;
+    size_t cart_count;
 };
 
 struct cart
@@ -57,6 +59,7 @@ struct cart
     ioopm_hash_table_t *items;
     int id;
 };
+
 
 // begin test
 
@@ -214,23 +217,30 @@ void test_edit_merch()
 void test_replenish()
 {
   warehouse_t *warehouse = ioopm_warehouse_create();
-  // ioopm_add_merch(warehouse, "test name", "test desc", 25);
 
-  // merch_t *merch;
-  // ioopm_hash_table_lookup(warehouse->items, ptr_elem("test name"), &merch);
-  // // ioopm_linked_list_contains(merch->location, );
+  ioopm_add_merch(warehouse, "first item", "test desc", 10);
+  ioopm_add_merch(warehouse, "second merchandise", "test desc", 40);
+  // cart_t *cart1 = ioopm_cart_create(warehouse);
+  // cart_t *cart2 = ioopm_cart_create(warehouse);
+  
+  ioopm_replenish_stock(warehouse, "first item", "B45", 20);
+  ioopm_replenish_stock(warehouse, "first item", "B45", 10);
+  ioopm_replenish_stock(warehouse, "second merchandise", "A12", 40);
+  ioopm_replenish_stock(warehouse, "second merchandise", "Q90", 10);
 
-  // // ioopm_list_t *stock = ioopm_hash_table_values(warehouse->items);
-  // // elem_t current_val = ioopm_linked_list_get(stock, int_ptr(0));
+  elem_t merch1;
+  elem_t merch2;
 
-  // // int current_stock = ((merch_t *)current_val.func_point);
-  // // CU_ASSERT_TRUE();
+  ioopm_hash_table_lookup(warehouse->items, ptr_elem("first item"), &merch1);
+  ioopm_hash_table_lookup(warehouse->items, ptr_elem("second merchandise"), &merch2);
 
+  merch_t *item1 = merch1.func_point;
+  merch_t *item2 = merch2.func_point;
 
-  // ioopm_replenish_stock(warehouse, "test name", "E22", 12);
+  ioopm_list_t *shelves_item1 = item1->location;
+  ioopm_list_t *shelves_item2 = item2->location;
 
-  // ioopm_hash_table_lookup(warehouse->items, ptr_elem("test name"), &merch);
-
+  
 
   ioopm_warehouse_destroy(warehouse);
 }
@@ -353,8 +363,17 @@ void test_cart_checkout()
   ioopm_add_to_cart(warehouse, cart, "bord", 12);
   ioopm_add_to_cart(warehouse, cart, "stol", 11);
 
+  // elem_t shelf1;
+  // elem_t shelf2;
+  // ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("b12"), &shelf1);
+  // ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("b13"), &shelf2);
+  // shelf_t *current_shelf = shelf1.func_point;
+  // printf("\n%s: %ld \n",current_shelf->item_in_shelf, current_shelf->stock);
+  // current_shelf = shelf2.func_point;
+  // printf("\n%s: %ld \n",current_shelf->item_in_shelf, current_shelf->stock);
 
   ioopm_checkout_cart(warehouse, cart);
+
   ioopm_hash_table_lookup(warehouse->items, ptr_elem("bord"), &merch);
   merch_t *merch_info = merch.func_point;
   size_t merch_total_stock = merch_info->total_stock;
@@ -365,9 +384,22 @@ void test_cart_checkout()
   char *shelf_name = ioopm_linked_list_get(shelves, int_elem(0)).func_point; //b12
   elem_t shelf_elem;
   ioopm_hash_table_lookup(warehouse->shelves, ptr_elem(shelf_name), &shelf_elem);
+
+  // elem_t removed_
+  // result = ioopm_hash_table_lookup(warehouse->shelves, ptr_elem(shelf_name), &shelf_elem);
+
+  // elem_t shelf3;
+  // elem_t shelf4;
+
+  // ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("b12"), &shelf3);
+  // ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("b13"), &shelf4);
+  // current_shelf = shelf3.func_point;
+  // printf("\nefter %s: %ld \n",current_shelf->item_in_shelf, current_shelf->stock);
+  // current_shelf = shelf4.func_point;
+  // printf("\nefter %s: %ld \n",current_shelf->item_in_shelf, current_shelf->stock);
+
   shelf_t *current_shelf = shelf_elem.func_point;
-  printf("\n%d \n",current_shelf->stock);
-  
+  // printf("\n%ld \n",current_shelf->stock);
   int shelf_stock = current_shelf->stock;
   CU_ASSERT_EQUAL(shelf_stock, 3);
 

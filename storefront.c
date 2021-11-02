@@ -160,8 +160,11 @@ void ioopm_add_cart_interface(warehouse_t *warehouse)
     int quantity = ask_question_int("What quantity of the merch do you want to add?: ");
     ioopm_add_to_cart(warehouse, cart, name, quantity);
   }
+  else
+  {
   printf("The cart add was not successful. \n");
-  
+  }
+
   make_spacing;
 }
 

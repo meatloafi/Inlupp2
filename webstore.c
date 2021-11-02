@@ -474,6 +474,7 @@ bool ioopm_replenish_stock(warehouse_t *warehouse, char *merch_name, char *shelf
     }
 }
 
+
 bool get_cart(warehouse_t *warehouse, int cart_id, cart_t **cart)
 {
     if (ioopm_linked_list_is_empty(warehouse->carts))
@@ -484,7 +485,7 @@ bool get_cart(warehouse_t *warehouse, int cart_id, cart_t **cart)
 
     if((((cart_t *)ioopm_iterator_current(iter).func_point)->id) == cart_id)
         {   
-            cart = (ioopm_iterator_current(iter).func_point);
+            *cart = (ioopm_iterator_current(iter).func_point);
             return true;
         }
 
@@ -492,15 +493,41 @@ bool get_cart(warehouse_t *warehouse, int cart_id, cart_t **cart)
     {
         if((((cart_t *)ioopm_iterator_current(iter).func_point)->id) == cart_id)
         {   
-            cart = (ioopm_iterator_current(iter).func_point);
+            *cart = (ioopm_iterator_current(iter).func_point);
             return true;
         }
         ioopm_iterator_next(iter);
     }
-    // int cart_idd = (((cart_t *)ioopm_iterator_current(iter).func_point)->id);
-    // printf("ID: %d \n", cart_idd);
     return false;
 }
+
+// bool get_cart(warehouse_t *warehouse, int cart_id, cart_t **cart)
+// {
+//     if (ioopm_linked_list_is_empty(warehouse->carts))
+//     {
+//         return false;
+//     }
+//     ioopm_list_iterator_t *iter = ioopm_list_iterator(warehouse->carts);
+
+//     if((((cart_t *)ioopm_iterator_current(iter).func_point)->id) == cart_id)
+//         {   
+//             cart = (ioopm_iterator_current(iter).func_point);
+//             return true;
+//         }
+
+//     while (ioopm_iterator_has_next(iter))
+//     {
+//         if((((cart_t *)ioopm_iterator_current(iter).func_point)->id) == cart_id)
+//         {   
+//             cart = (ioopm_iterator_current(iter).func_point);
+//             return true;
+//         }
+//         ioopm_iterator_next(iter);
+//     }
+//     // int cart_idd = (((cart_t *)ioopm_iterator_current(iter).func_point)->id);
+//     // printf("ID: %d \n", cart_idd);
+//     return false;
+// }
 
 
 bool ioopm_add_to_cart(warehouse_t *warehouse, cart_t *cart, char *merch_name, size_t quantity) // TODO; hitta ett sätt att kolla så alla carts tillsammans inte överstiger stock av en merch
@@ -602,6 +629,8 @@ static void remove_stock_from_shelves(warehouse_t *warehouse, char *merch_name, 
         {
             quantity = 0;
             ioopm_linked_list_remove(locations, int_elem(i));
+            // free(current_shelf);
+            ioopm_hash_table_remove(warehouse->shelves, ptr_elem(shelf_name));
         }
         else if(current_shelf->stock > quantity)
         {
@@ -613,6 +642,8 @@ static void remove_stock_from_shelves(warehouse_t *warehouse, char *merch_name, 
         {
             quantity = quantity - current_shelf->stock;
             ioopm_linked_list_remove(locations, int_elem(i));
+            // free(current_shelf);
+            ioopm_hash_table_remove(warehouse->shelves, ptr_elem(shelf_name));
         }
         i++;
     }
@@ -622,6 +653,15 @@ void ioopm_checkout_cart(warehouse_t *warehouse, cart_t *cart)
 {
     size_t cart_cost = ioopm_calc_cost_cart(warehouse, cart);
     printf("Total cost: %ld.\n", cart_cost);
+
+    // elem_t shelf1;
+    // elem_t shelf2;
+    // ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("b12"), &shelf1);
+    // ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("b13"), &shelf2);
+    // shelf_t *current_shelf = shelf1.func_point;
+    // printf("\n%s: %ld \n",current_shelf->item_in_shelf, current_shelf->stock);
+    // current_shelf = shelf2.func_point;
+    // printf("\n%s: %ld \n",current_shelf->item_in_shelf, current_shelf->stock);
 
     char *merch_name;
     elem_t current_merch_name;
@@ -641,6 +681,14 @@ void ioopm_checkout_cart(warehouse_t *warehouse, cart_t *cart)
 
         remove_stock_from_shelves(warehouse, merch_name, merch_quantity);
     }
+
+    // ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("b12"), &shelf1);
+    // ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("b13"), &shelf2);
+    // current_shelf = shelf1.func_point;
+    // printf("\n%s: %ld \n",current_shelf->item_in_shelf, current_shelf->stock);
+    // current_shelf = shelf2.func_point;
+    // printf("\n%s: %ld \n",current_shelf->item_in_shelf, current_shelf->stock);
+
     ioopm_linked_list_destroy(names);
     ioopm_linked_list_destroy(quantities);
     // ioopm_remove_cart(cart);

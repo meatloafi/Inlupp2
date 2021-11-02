@@ -180,6 +180,7 @@ bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, elem_t key, elem_t *result)
   }
   else
   {
+    // result = NULL; // FIXME: ska det vara så eller ej?
     return (false);
   }
 }
@@ -188,6 +189,7 @@ static void entry_destroy(entry_t *entry)
 {
   free(entry); // FREE THE MEMORY OF ENTRY
 }
+
 
 elem_t ioopm_hash_table_remove(ioopm_hash_table_t *ht, elem_t key)
 {
