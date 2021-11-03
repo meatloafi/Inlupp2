@@ -305,18 +305,18 @@ void test_remove_from_cart()
   result = ioopm_hash_table_lookup(cart->items, ptr_elem("stol"), &merch);
   CU_ASSERT_TRUE(result);
 
-  ioopm_remove_from_cart(cart, "bord", 12);
+  ioopm_remove_from_cart(warehouse,cart, "bord", 12);
   result = ioopm_hash_table_lookup(cart->items, ptr_elem("bord"), &merch);
   CU_ASSERT_FALSE(result);
 
-  ioopm_remove_from_cart(cart, "stol", 9);
+  ioopm_remove_from_cart(warehouse,cart, "stol", 9);
   result = ioopm_hash_table_lookup(cart->items, ptr_elem("stol"), &merch);
   CU_ASSERT_TRUE(result);
 
   result = ioopm_hash_table_is_empty(cart->items);
   CU_ASSERT_FALSE(result);
 
-  ioopm_remove_from_cart(cart, "stol", 2);
+  ioopm_remove_from_cart(warehouse, cart, "stol", 2);
   result = ioopm_hash_table_lookup(cart->items, ptr_elem("stol"), &merch);
   CU_ASSERT_FALSE(result);  
   

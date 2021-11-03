@@ -77,8 +77,6 @@ static bool string_value_equiv_ht(elem_t index_ignored, elem_t value, elem_t x)
 //   return (s1->shelf == s2->shelf);
 // }
 
-
-
 warehouse_t *ioopm_warehouse_create()
 {
     ioopm_hash_table_t *items = ioopm_hash_table_create((ioopm_hash_function) string_sum_hash, NULL, string_value_equiv_ht, NULL);
@@ -296,7 +294,7 @@ bool ioopm_remove_merch(warehouse_t *warehouse, char *merch_name)
 
 
 
-bool ioopm_edit_merch(warehouse_t *warehouse, char *merch_name, char *new_name, char *new_desc, size_t new_price) 
+bool ioopm_edit_merch(warehouse_t *warehouse, char *merch_name, char *new_name, char *new_desc, size_t new_price)
 {
     elem_t to_edit;
     bool result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(merch_name), &to_edit);
@@ -306,16 +304,24 @@ bool ioopm_edit_merch(warehouse_t *warehouse, char *merch_name, char *new_name, 
         return false;
     }
 
-    //elem_t value;
     merch_t *current_merch = to_edit.func_point;
+
     if (current_merch->lock == true)
     {
         printf("The merchendise is currently in a cart and is therefore not editable");
         return false;
     }
-    current_merch -> name = new_name;
-    current_merch -> description = new_desc;
-    current_merch -> price = new_price;
+
+    merch_t *updated_merch = calloc(1, sizeof(merch_t));
+    updated_merch->name = new_name;
+    updated_merch->description = new_desc;
+    updated_merch->price = new_price;
+    updated_merch->location = current_merch->location;
+    updated_merch->total_stock = current_merch->total_stock;
+    updated_merch->lock = false;
+    ioopm_hash_table_remove(warehouse->items, ptr_elem(merch_name));
+    ioopm_hash_table_insert(warehouse->items, ptr_elem(new_name), ptr_elem(updated_merch));
+
     return true;
 }
 
@@ -696,7 +702,7 @@ void ioopm_checkout_cart(warehouse_t *warehouse, cart_t *cart)
         current_merch_name = ioopm_linked_list_get(names, int_elem(i));
         current_merch_quantity = ioopm_linked_list_get(quantities, int_elem(i));
 
-        ioopm_hash_table_lookup(warehouse->items, ptr_elem(merch_name), &to_unlock);
+        ioopm_hash_table_lookup(warehouse->items, ptr_elem(current_merch_name.func_point), &to_unlock);
         merch_t *current_merch = to_unlock.func_point;
         current_merch->lock = false; //unlock
 
