@@ -151,21 +151,22 @@ void merch_destroy(merch_t *merch)
         free(merch); 
         merch = NULL;
     }
-    
 }
-
 
 void ioopm_warehouse_destroy(warehouse_t *warehouse)
 {
     //free_all_shelves(warehouse->shelves); //FIXME: När replenish är fixat
 
-    for(int i = 0; i < warehouse->item_count; i++)
-    {
-        entry_t *current_bucket = &(warehouse->items)->buckets[i];
-        merch_destroy((merch_t *)(&(current_bucket->value)));
-    }
-    // free_all_merch(warehouse->items);
-    ioopm_hash_table_destroy(warehouse->shelves); //FIXME: replenish
+    // for(int i = 0; i < warehouse->item_count; i++)
+    // {
+    //     entry_t *current_bucket = &(warehouse->items)->buckets[i];
+    //     merch_destroy((merch_t *)(&(current_bucket->value)));
+    // }
+    // ioopm_hash_table_destroy(warehouse->items);
+    ioopm_linked_list_destroy(warehouse->carts);
+    // ioopm_hash_table_destroy(warehouse->shelves); //FIXME: replenish
+    free_all_shelves(warehouse->shelves);
+    free_all_merch(warehouse->items);
     // free_all_carts(warehouse->carts);
     free(warehouse);
 }
@@ -486,6 +487,7 @@ bool get_cart(warehouse_t *warehouse, int cart_id, cart_t **cart)
     if((((cart_t *)ioopm_iterator_current(iter).func_point)->id) == cart_id)
         {   
             *cart = (ioopm_iterator_current(iter).func_point);
+            ioopm_iterator_destroy(iter);
             return true;
         }
 
@@ -494,10 +496,12 @@ bool get_cart(warehouse_t *warehouse, int cart_id, cart_t **cart)
         if((((cart_t *)ioopm_iterator_current(iter).func_point)->id) == cart_id)
         {   
             *cart = (ioopm_iterator_current(iter).func_point);
+            ioopm_iterator_destroy(iter);
             return true;
         }
         ioopm_iterator_next(iter);
     }
+    ioopm_iterator_destroy(iter);
     return false;
 }
 
