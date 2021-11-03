@@ -162,7 +162,7 @@ void ioopm_add_cart_interface(warehouse_t *warehouse)
   {
     char *name = ask_question_string("What merchendise do you want to add?: ");
     int quantity = ask_question_int("What quantity of the merch do you want to add?: ");
-    ioopm_add_to_cart(warehouse, cart, name, quantity);
+    ioopm_add_to_cart(warehouse, cart, strdup(name), quantity);
   }
   else
   {
