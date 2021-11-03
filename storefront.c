@@ -148,15 +148,11 @@ void ioopm_add_merch_interface(ioopm_list_t *strdup_list, warehouse_t *warehouse
   char *desc = ask_question_string("Description: ");
   size_t price = ask_question_int("Price: ");
 
-  ioopm_linked_list_prepend(strdup_list, ptr_elem(name));
-  char *name_nd = (strdup_list->head->value).func_point;
+  ioopm_linked_list_append(strdup_list, ptr_elem(name));
 
-  ioopm_linked_list_prepend(strdup_list, ptr_elem(desc));
-  char *desc_nd = (strdup_list->head->value).func_point;
+  ioopm_linked_list_append(strdup_list, ptr_elem(desc));
 
-  ioopm_add_merch(warehouse, name_nd, desc_nd, price);
-  free(name);
-  free(desc);
+  ioopm_add_merch(warehouse, name, desc, price);
 
   make_spacing;
 }
@@ -168,17 +164,10 @@ void ioopm_edit_merch_interface(ioopm_list_t *strdup_list, warehouse_t *warehous
   char *new_name = ask_question_string("New name: ");
   char *new_desc = ask_question_string("New description: ");
   size_t new_price = ask_question_int("New price: ");
-  ioopm_linked_list_prepend(strdup_list, ptr_elem(new_name));
-  char *new_name_nd = (strdup_list->head->value).func_point;
+  ioopm_edit_merch(warehouse, merch, new_name, new_desc, new_price);
+  ioopm_linked_list_append(strdup_list, ptr_elem(new_name));
+  ioopm_linked_list_append(strdup_list, ptr_elem(new_desc));
 
-  ioopm_linked_list_prepend(strdup_list, ptr_elem(new_desc));
-  char *new_desc_nd = (strdup_list->head->value).func_point;
-
-  ioopm_edit_merch(warehouse, merch, new_name_nd, new_desc_nd, new_price);
-
-  free(new_name);
-  free(new_desc);
-  
   make_spacing;
 }
 
@@ -186,14 +175,8 @@ void ioopm_remove_merch_interface(ioopm_list_t *strdup_list, warehouse_t *wareho
 {
   char *merch_name;
   merch_name = ask_question_string("Which merchendise would you like to remove? \n");
-
-  ioopm_linked_list_prepend(strdup_list, ptr_elem(merch_name));
-  char *merch_name_nd = (strdup_list->head->value).func_point;
-
-  ioopm_remove_merch(warehouse, merch_name_nd);
-  free(merch_name);
-
-  
+  ioopm_remove_merch(warehouse, merch_name);
+  ioopm_linked_list_append(strdup_list, ptr_elem(merch_name));
   make_spacing;
 }
 
@@ -207,10 +190,8 @@ void ioopm_add_cart_interface(ioopm_list_t *strdup_list, warehouse_t *warehouse)
   {
     char *name = ask_question_string("What merchendise do you want to add?: ");
     int quantity = ask_question_int("What quantity of the merch do you want to add?: ");
-    ioopm_linked_list_prepend(strdup_list, ptr_elem(name));
-    char *name_nd = (strdup_list->head->value).func_point;
-    ioopm_add_to_cart(warehouse, cart, strdup(name_nd), quantity);
-    free(name);
+    ioopm_linked_list_append(strdup_list, ptr_elem(name));
+    ioopm_add_to_cart(warehouse, cart, strdup(name), quantity);
   }
   else
   {
@@ -247,10 +228,9 @@ void ioopm_remove_from_cart_interface(ioopm_list_t *strdup_list, warehouse_t *wa
   if(result)
   { char *name = ask_question_string("What merchendise do you want to remove?: ");
     int quantity = ask_question_int("What quantity of the merch do you want to remove?: ");
-    ioopm_linked_list_prepend(strdup_list, ptr_elem(name));
-    char *name_nd = (strdup_list->head->value).func_point;
-    result = ioopm_remove_from_cart(warehouse, cart, name_nd, quantity);
-    free(name);
+    ioopm_linked_list_append(strdup_list, ptr_elem(name));
+
+    result = ioopm_remove_from_cart(warehouse, cart, name, quantity);
     if(result)
     {
       printf("The merch has successfully been removed from the cart!\n ");
@@ -379,16 +359,7 @@ void event_loop(ioopm_list_t *strdup_list, warehouse_t *warehouse)
           merch_name = ask_question_string("Which merchendise would you like to replenish the stock of? \n");
           shelf_name = ask_question_shelf("Which shelf would you like to replenish? \n");
           quantity = ask_question_int("Input new quantity \n");
-          ioopm_linked_list_prepend(strdup_list, ptr_elem(merch_name));
-          char *merch_name_nd = (strdup_list->head->value).func_point;
-
-          ioopm_linked_list_prepend(strdup_list, ptr_elem(shelf_name));
-
-          char *shelf_name_nd = (strdup_list->head->value).func_point;
-          
-          bool result = ioopm_replenish_stock(warehouse, merch_name_nd, shelf_name_nd, quantity);
-          free(merch_name);
-          free(shelf_name);
+          bool result = ioopm_replenish_stock(warehouse, merch_name, shelf_name, quantity);
           if(result)
           {
             printf("The replenish was successfull!\n");
@@ -445,17 +416,31 @@ void event_loop(ioopm_list_t *strdup_list, warehouse_t *warehouse)
       }
 }
 while (input != 0);
-
-//cart_destroy(cart); ??
 }
 
+void duplicate_destroy(ioopm_list_t *strdup_list)
+{
+  ioopm_list_iterator_t *iter = ioopm_list_iterator(strdup_list);
+  elem_t current_elem = ioopm_iterator_current(iter);
+  free(current_elem.func_point);
+
+  while (ioopm_iterator_has_next(iter))
+  {
+      ioopm_iterator_next(iter);
+      elem_t current_elem = ioopm_iterator_current(iter);
+      free(current_elem.func_point);
+  }
+  ioopm_iterator_destroy(iter);
+}
 
 int main(int argc, char *argv[])
 {
   ioopm_list_t *strdup_list = ioopm_linked_list_create(NULL);
   warehouse_t *warehouse = ioopm_warehouse_create();
   event_loop(strdup_list, warehouse);
+  duplicate_destroy(strdup_list);
   ioopm_linked_list_destroy(strdup_list);
   ioopm_warehouse_destroy(warehouse);
   return 0;
 }
+
