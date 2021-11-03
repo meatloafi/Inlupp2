@@ -240,6 +240,7 @@ void test_replenish()
   ioopm_list_t *shelves_item1 = item1->location;
   ioopm_list_t *shelves_item2 = item2->location;
 
+
   
 
   ioopm_warehouse_destroy(warehouse);
@@ -277,8 +278,8 @@ void test_add_to_cart()
   result = ioopm_hash_table_lookup(cart->items, ptr_elem("test not present in cart"), &merch);
   CU_ASSERT_FALSE(result);
   
-  free(cart); // FIXME: frigör detta i free_all_carts istället
-  free(cart2); // FIXME:
+  // free(cart); // FIXME: frigör detta i free_all_carts istället
+  // free(cart2); // FIXME:
   ioopm_warehouse_destroy(warehouse);
 }
 
@@ -319,7 +320,7 @@ void test_remove_from_cart()
   result = ioopm_hash_table_lookup(cart->items, ptr_elem("stol"), &merch);
   CU_ASSERT_FALSE(result);  
   
-  free(cart); //FIXME: gör detta i free_all_carts
+  // free(cart); //FIXME: gör detta i free_all_carts
   ioopm_warehouse_destroy(warehouse);
 }
 
@@ -343,7 +344,7 @@ void test_cart_cost()
   size_t total_price = ioopm_calc_cost_cart(warehouse, cart);
   CU_ASSERT_EQUAL(total_price, 299);
 
-  free(cart); //FIXME:
+  // free(cart); //FIXME:
   ioopm_warehouse_destroy(warehouse);
 }
 
@@ -393,7 +394,7 @@ void test_cart_checkout()
   size = ioopm_linked_list_size(shelves);
   CU_ASSERT_EQUAL(size, 0);
 
-  free(cart);
+  // free(cart);
   ioopm_warehouse_destroy(warehouse);
 
 }
