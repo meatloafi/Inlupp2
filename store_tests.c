@@ -363,15 +363,6 @@ void test_cart_checkout()
   ioopm_add_to_cart(warehouse, cart, "bord", 12);
   ioopm_add_to_cart(warehouse, cart, "stol", 11);
 
-  // elem_t shelf1;
-  // elem_t shelf2;
-  // ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("b12"), &shelf1);
-  // ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("b13"), &shelf2);
-  // shelf_t *current_shelf = shelf1.func_point;
-  // printf("\n%s: %ld \n",current_shelf->item_in_shelf, current_shelf->stock);
-  // current_shelf = shelf2.func_point;
-  // printf("\n%s: %ld \n",current_shelf->item_in_shelf, current_shelf->stock);
-
   ioopm_checkout_cart(warehouse, cart);
 
   ioopm_hash_table_lookup(warehouse->items, ptr_elem("bord"), &merch);
@@ -385,21 +376,8 @@ void test_cart_checkout()
   elem_t shelf_elem;
   ioopm_hash_table_lookup(warehouse->shelves, ptr_elem(shelf_name), &shelf_elem);
 
-  // elem_t removed_
-  // result = ioopm_hash_table_lookup(warehouse->shelves, ptr_elem(shelf_name), &shelf_elem);
-
-  // elem_t shelf3;
-  // elem_t shelf4;
-
-  // ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("b12"), &shelf3);
-  // ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("b13"), &shelf4);
-  // current_shelf = shelf3.func_point;
-  // printf("\nefter %s: %ld \n",current_shelf->item_in_shelf, current_shelf->stock);
-  // current_shelf = shelf4.func_point;
-  // printf("\nefter %s: %ld \n",current_shelf->item_in_shelf, current_shelf->stock);
 
   shelf_t *current_shelf = shelf_elem.func_point;
-  // printf("\n%ld \n",current_shelf->stock);
   int shelf_stock = current_shelf->stock;
   CU_ASSERT_EQUAL(shelf_stock, 3);
 
@@ -414,9 +392,6 @@ void test_cart_checkout()
   
   size = ioopm_linked_list_size(shelves);
   CU_ASSERT_EQUAL(size, 0);
-  
-/*gdb-> p *(shelf_t *)(*(merch_t *)warehouse->items->buckets[15]->next->value.func_point)->location->head->value.func_point */
-  // result = ioopm_hash_table_lookup(warehouse, ptr_elem("bord"), &merch);
 
   free(cart);
   ioopm_warehouse_destroy(warehouse);

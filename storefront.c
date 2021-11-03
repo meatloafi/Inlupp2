@@ -17,12 +17,16 @@ typedef struct warehouse warehouse_t;
 
 struct merch 
 {
+    int id;
     char *name;
     size_t price;
     char *description;
-    int id;
     ioopm_list_t *location;
+    size_t total_stock;
+    bool lock;
 };
+
+
 
 
 struct shelf
@@ -196,7 +200,7 @@ void ioopm_remove_from_cart_interface(warehouse_t *warehouse)
   { char *name = ask_question_string("What merchendise do you want to remove?: ");
     int quantity = ask_question_int("What quantity of the merch do you want to remove?: ");
 
-    result = ioopm_remove_from_cart(cart, name, quantity);
+    result = ioopm_remove_from_cart(warehouse, cart, name, quantity);
     if(result)
     {
       printf("The merch has successfully been removed from the cart!\n ");
@@ -234,6 +238,27 @@ void ioopm_calculate_cost_interface(warehouse_t *warehouse)
 
   make_spacing;
 }
+
+void ioopm_checkout_cart_interface(warehouse_t *warehouse)
+{
+  make_spacing;
+  int id = ask_question_int("Which cart do you wish to checkout?:  ");
+  cart_t *cart;
+  bool result = get_cart(warehouse, id, &cart);
+  if(result)
+  {
+    ioopm_checkout_cart(warehouse, cart);
+    printf("The cart id:%ld was checked out!\n", cart->id);
+  }
+  else
+  {
+  printf("The checkout was not successful. \n");
+  }
+
+  make_spacing;
+}
+
+
 
 void print_options_menu()
 {
@@ -352,9 +377,8 @@ void event_loop(warehouse_t *warehouse)
           break;
           
           case 13:
-          //ioopm_checkout_cart
-          printf("TO BE IMPLEMENTED!\n"); break;
-
+          ioopm_checkout_cart_interface(warehouse);
+          break;
 
           case 0:
           make_spacing;

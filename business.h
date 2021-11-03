@@ -99,7 +99,7 @@ bool ioopm_add_to_cart(warehouse_t *warehouse, cart_t *cart, char *merch, size_t
 /// @param cart The cart that merchandise is to be removed from
 /// @param merch The merch to be removed
 /// @param quantity The amount of the merchandise to be removed
-bool ioopm_remove_from_cart(cart_t *cart, char *merch_name, size_t quantity);
+bool ioopm_remove_from_cart(warehouse_t *warehouse, cart_t *cart, char *merch_name, size_t quantity);
 
 /// @brief Calculate the cost of all merchandise in a cart
 /// @param cart The cart 
