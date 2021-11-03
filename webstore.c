@@ -156,16 +156,7 @@ void merch_destroy(merch_t *merch)
 
 void ioopm_warehouse_destroy(warehouse_t *warehouse)
 {
-    //free_all_shelves(warehouse->shelves); //FIXME: När replenish är fixat
-
-    // for(int i = 0; i < warehouse->item_count; i++)
-    // {
-    //     entry_t *current_bucket = &(warehouse->items)->buckets[i];
-    //     merch_destroy((merch_t *)(&(current_bucket->value)));
-    // }
-    // ioopm_hash_table_destroy(warehouse->items);
     ioopm_linked_list_destroy(warehouse->carts);
-    // ioopm_hash_table_destroy(warehouse->shelves); //FIXME: replenish
     free_all_shelves(warehouse->shelves);
     free_all_merch(warehouse->items);
     // free_all_carts(warehouse->carts);
@@ -294,12 +285,33 @@ bool ioopm_remove_merch(warehouse_t *warehouse, char *merch_name)
 }
 
 
+// bool ioopm_hash_table_lookup_key(ioopm_hash_table_t *ht, elem_t key, elem_t *result)
+// {
+//   ioopm_hash_function hashing = ht->hash_function;
+//   // Find the previous entry for key
+//   int key_ascii = hashing(key);
+//   int bucket = key_ascii % ht->capacity;                                          // Bucket is chosen acording to the hash function in the hash table
+//   entry_t *tmp = find_previous_entry_for_key(&ht->buckets[bucket], key_ascii,ht); // We chose the second option to add a dummy entry
+//   entry_t *next = tmp->next;
 
+//   if (next && hashing(next->key) == key_ascii)
+//   {
+//     *result = next->key;
+//     return (true);                                                         // If entry was found, return its value...
+//   }
+//   else
+//   {
+//     // result = NULL;
+//     return (false);
+//   }
+// }
 
-bool ioopm_edit_merch(warehouse_t *warehouse, char *merch_name, char *new_name, char *new_desc, size_t new_price) 
+bool ioopm_edit_merch(warehouse_t *warehouse, char *merch_name, char *new_name, char *new_desc, size_t new_price)
 {
     elem_t to_edit;
     bool result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(merch_name), &to_edit);
+    // elem_t key_to_edit;
+    // ioopm_hash_table_lookup_key(warehouse->items, ptr_elem(merch_name), &key_to_edit);
     if(!result)
     {
         printf("The merchandise named %s could not be found.\n", merch_name);
@@ -313,9 +325,15 @@ bool ioopm_edit_merch(warehouse_t *warehouse, char *merch_name, char *new_name, 
         printf("The merchendise is currently in a cart and is therefore not editable");
         return false;
     }
-    current_merch -> name = new_name;
-    current_merch -> description = new_desc;
-    current_merch -> price = new_price;
+    merch_t updated_merch = {.name = new_name, .description = new_desc, .price = new_price, .location = current_merch->location, .total_stock = current_merch->total_stock, .lock = false};
+    ioopm_hash_table_remove(warehouse->items, ptr_elem(current_merch->name));
+    ioopm_hash_table_insert(warehouse->items, ptr_elem(new_name), ptr_elem(&updated_merch));
+    
+
+    // key
+    // current_merch -> name = new_name;
+    // current_merch -> description = new_desc;
+    // current_merch -> price = new_price;
     return true;
 }
 
@@ -500,13 +518,14 @@ bool get_cart(warehouse_t *warehouse, int cart_id, cart_t **cart)
 
     while (ioopm_iterator_has_next(iter))
     {
+        ioopm_iterator_next(iter);
         if((((cart_t *)ioopm_iterator_current(iter).func_point)->id) == cart_id)
         {   
             *cart = (ioopm_iterator_current(iter).func_point);
             ioopm_iterator_destroy(iter);
             return true;
         }
-        ioopm_iterator_next(iter);
+        // ioopm_iterator_next(iter);
     }
     ioopm_iterator_destroy(iter);
     return false;
@@ -563,7 +582,7 @@ bool ioopm_add_to_cart(warehouse_t *warehouse, cart_t *cart, char *merch_name, s
         if(quantity <= current_stock)
         {
             merch->lock = true;
-            ioopm_hash_table_insert(cart->items, ptr_elem(merch_name), int_elem(quantity)/*to_edit*//*ptr_elem(merch)*/);
+            ioopm_hash_table_insert(cart->items, ptr_elem(merch_name), int_elem(quantity));
             return true;
         }
 
@@ -672,15 +691,6 @@ void ioopm_checkout_cart(warehouse_t *warehouse, cart_t *cart)
     size_t cart_cost = ioopm_calc_cost_cart(warehouse, cart);
     printf("Total cost: %ld.\n", cart_cost);
 
-    // elem_t shelf1;
-    // elem_t shelf2;
-    // ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("b12"), &shelf1);
-    // ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("b13"), &shelf2);
-    // shelf_t *current_shelf = shelf1.func_point;
-    // printf("\n%s: %ld \n",current_shelf->item_in_shelf, current_shelf->stock);
-    // current_shelf = shelf2.func_point;
-    // printf("\n%s: %ld \n",current_shelf->item_in_shelf, current_shelf->stock);
-
     elem_t to_unlock;
 
     char *merch_name;
@@ -705,13 +715,6 @@ void ioopm_checkout_cart(warehouse_t *warehouse, cart_t *cart)
 
         remove_stock_from_shelves(warehouse, merch_name, merch_quantity);
     }
-
-    // ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("b12"), &shelf1);
-    // ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("b13"), &shelf2);
-    // current_shelf = shelf1.func_point;
-    // printf("\n%s: %ld \n",current_shelf->item_in_shelf, current_shelf->stock);
-    // current_shelf = shelf2.func_point;
-    // printf("\n%s: %ld \n",current_shelf->item_in_shelf, current_shelf->stock);
 
     ioopm_linked_list_destroy(names);
     ioopm_linked_list_destroy(quantities);

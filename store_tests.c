@@ -202,11 +202,15 @@ void test_edit_merch()
   ioopm_edit_merch(warehouse, name, name_edit, desc_edit, price);
 
   result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name), &merch_ptr);
-  merch = merch_ptr.func_point;
-  CU_ASSERT_EQUAL(merch->description, desc_edit);
+  CU_ASSERT_FALSE(result);
+  // merch = merch_ptr.func_point;
+  // CU_ASSERT_EQUAL(merch->description, desc_edit);
 
-  result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name_edit), &merch_ptr); //ska vara true, key har inte uppdaterats, value rätt men key fel
+  elem_t merch_ptr2;
+  result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name_edit), &merch_ptr2); //ska vara true, key har inte uppdaterats, value rätt men key fel
   CU_ASSERT_TRUE(result);
+  merch = merch_ptr2.func_point;
+  CU_ASSERT_EQUAL(merch->description, desc_edit);
   result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name), &merch_ptr); //ska vara false, key har inte uppdaterats, value rätt men key fel
   CU_ASSERT_FALSE(result);
 
@@ -305,18 +309,18 @@ void test_remove_from_cart()
   result = ioopm_hash_table_lookup(cart->items, ptr_elem("stol"), &merch);
   CU_ASSERT_TRUE(result);
 
-  ioopm_remove_from_cart(cart, "bord", 12);
+  ioopm_remove_from_cart(warehouse, cart, "bord", 12);
   result = ioopm_hash_table_lookup(cart->items, ptr_elem("bord"), &merch);
   CU_ASSERT_FALSE(result);
 
-  ioopm_remove_from_cart(cart, "stol", 9);
+  ioopm_remove_from_cart(warehouse, cart, "stol", 9);
   result = ioopm_hash_table_lookup(cart->items, ptr_elem("stol"), &merch);
   CU_ASSERT_TRUE(result);
 
   result = ioopm_hash_table_is_empty(cart->items);
   CU_ASSERT_FALSE(result);
 
-  ioopm_remove_from_cart(cart, "stol", 2);
+  ioopm_remove_from_cart(warehouse, cart, "stol", 2);
   result = ioopm_hash_table_lookup(cart->items, ptr_elem("stol"), &merch);
   CU_ASSERT_FALSE(result);  
   
