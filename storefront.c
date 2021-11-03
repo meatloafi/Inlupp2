@@ -344,6 +344,7 @@ void event_loop(ioopm_list_t *strdup_list, warehouse_t *warehouse)
 
           case 4:
           merch_name = ask_question_string("Which merchendise would you like to edit? \n");
+          ioopm_linked_list_append(strdup_list, ptr_elem(merch_name));
           ioopm_edit_merch_interface(strdup_list, warehouse, merch_name);
           ioopm_list_merch(warehouse);
 
@@ -351,6 +352,7 @@ void event_loop(ioopm_list_t *strdup_list, warehouse_t *warehouse)
           case 5:
           make_spacing; 
           merch_name = ask_question_string("Which merchendise would you like to show the locations of? \n");
+          ioopm_linked_list_append(strdup_list, ptr_elem(merch_name));
           ioopm_show_stock(warehouse, merch_name);
           make_spacing; 
           
@@ -368,6 +370,8 @@ void event_loop(ioopm_list_t *strdup_list, warehouse_t *warehouse)
           {
             printf("The replenish was unsuccessfull.\n");
           }
+          ioopm_linked_list_append(strdup_list, ptr_elem(merch_name));
+          ioopm_linked_list_append(strdup_list, ptr_elem(shelf_name)); 
           make_spacing; 
           break;
           case 7:
@@ -416,21 +420,27 @@ void event_loop(ioopm_list_t *strdup_list, warehouse_t *warehouse)
       }
 }
 while (input != 0);
+
 }
 
 void duplicate_destroy(ioopm_list_t *strdup_list)
 {
+  if(!ioopm_linked_list_is_empty(strdup_list))
+  {
   ioopm_list_iterator_t *iter = ioopm_list_iterator(strdup_list);
   elem_t current_elem = ioopm_iterator_current(iter);
-  free(current_elem.func_point);
+  char *current_duplicate = current_elem.func_point;
+  free(current_duplicate);
 
   while (ioopm_iterator_has_next(iter))
   {
       ioopm_iterator_next(iter);
       elem_t current_elem = ioopm_iterator_current(iter);
-      free(current_elem.func_point);
+      char *current_duplicate = current_elem.func_point;
+      free(current_duplicate);
   }
   ioopm_iterator_destroy(iter);
+  }
 }
 
 int main(int argc, char *argv[])
