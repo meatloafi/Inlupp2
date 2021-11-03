@@ -500,13 +500,13 @@ bool get_cart(warehouse_t *warehouse, int cart_id, cart_t **cart)
 
     while (ioopm_iterator_has_next(iter))
     {
+        ioopm_iterator_next(iter); 
         if((((cart_t *)ioopm_iterator_current(iter).func_point)->id) == cart_id)
         {   
             *cart = (ioopm_iterator_current(iter).func_point);
             ioopm_iterator_destroy(iter);
             return true;
         }
-        ioopm_iterator_next(iter);
     }
     ioopm_iterator_destroy(iter);
     return false;
@@ -544,19 +544,19 @@ bool get_cart(warehouse_t *warehouse, int cart_id, cart_t **cart)
 bool ioopm_add_to_cart(warehouse_t *warehouse, cart_t *cart, char *merch_name, size_t quantity) // TODO; hitta ett sätt att kolla så alla carts tillsammans inte överstiger stock av en merch
 {
     if(quantity >= 1)
-    {                                                                 // om denna merch redan finns ska det plussas på nuvarande mängd i cart
-        // if(!ioopm_hash_table_lookup(warehouse->items, ptr_elem(merch_name), NULL))
-        // {
-        //     printf("The merchandise named %s could not be found.\n", merch_name);
-        //     return false;
-        // }
-
-        elem_t to_check_quantity;
+    {                    
+        elem_t to_check_quantity;                                           // om denna merch redan finns ska det plussas på nuvarande mängd i cart
+        
         if(ioopm_hash_table_lookup(cart->items, ptr_elem(merch_name), &to_check_quantity))
         {
             return false;
         }
-        ioopm_hash_table_lookup(warehouse->items, ptr_elem(merch_name), &to_check_quantity);
+
+        if(!ioopm_hash_table_lookup(warehouse->items, ptr_elem(merch_name), &to_check_quantity))
+        {
+            printf("The merchandise named %s could not be found.\n", merch_name);
+            return false;
+        }
         merch_t *merch = to_check_quantity.func_point;
         size_t current_stock = merch->total_stock;
 
@@ -733,27 +733,28 @@ void print_carts (warehouse_t *warehouse)
 
         if(!ioopm_hash_table_is_empty(current_cart->items))
             {   
-                printf(" \n Merch in cart:\n"); 
+                printf(" \n   -Merch in cart:\n"); 
                 for (counter = 0; counter < ioopm_linked_list_size(item_values); counter++)
                 {
                    char *current_merch = ioopm_linked_list_get(item_values, int_elem(counter)).func_point;
-                   printf("\n Merch no.%d : %s \n",counter+1, current_merch);
+                   printf("\n   * Merch no.%d : %s \n",counter+1, current_merch);
                 }                
         }      
         while (ioopm_iterator_has_next(iter_carts))
                 {
                     ioopm_iterator_next(iter_carts);
                     current_cart = ioopm_iterator_current(iter_carts).func_point;
+                    printf(" \n Cart no.%d - ID: %d\n",i + 1, current_cart->id);
+                    item_values = ioopm_hash_table_keys(current_cart->items);
                     if(!ioopm_hash_table_is_empty(current_cart->items))
                     {
-                        printf(" \n Merch in cart:\n"); 
+                        printf(" \n   -Merch in cart:\n"); 
                         for (counter = 0; counter < ioopm_linked_list_size(item_values); counter++)
                         {
                             char *current_merch = ioopm_linked_list_get(item_values, int_elem(counter)).func_point;
-                            printf("\n Merch no.%d : %s \n",counter+1, current_merch);
+                            printf("\n   * Merch no.%d : %s \n",counter+1, current_merch);
                         }
                     }
-                    printf(" \n Cart no.%d - ID: %d\n",i + 1, current_cart->id);
                     i++;    
                 }
         ioopm_iterator_destroy(iter_carts);
