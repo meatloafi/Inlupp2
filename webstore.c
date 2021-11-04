@@ -830,6 +830,8 @@ bool ioopm_remove_cart(warehouse_t *warehouse, int cart_id)
             ioopm_remove_from_cart(warehouse, current_cart, (char *)merch_name.func_point, (size_t)quantity.func_point);
         }
         current_cart->id = 0;
+        ioopm_linked_list_destroy(item_keys);
+        ioopm_linked_list_destroy(item_values);
         ioopm_iterator_destroy(iter);
         return true;
     }
@@ -842,7 +844,6 @@ bool ioopm_remove_cart(warehouse_t *warehouse, int cart_id)
 
         if(current_cart->id == cart_id)
         {
-            //remove all items from cart
             ioopm_list_t *item_keys = ioopm_hash_table_keys(current_cart->items);
             ioopm_list_t *item_values = ioopm_hash_table_values(current_cart->items);
             size_t items_size = ioopm_hash_table_size(current_cart->items);
@@ -855,6 +856,8 @@ bool ioopm_remove_cart(warehouse_t *warehouse, int cart_id)
 
 
             current_cart->id = 0;
+            ioopm_linked_list_destroy(item_keys);
+            ioopm_linked_list_destroy(item_values);
             ioopm_iterator_destroy(iter);
             return true;
         }
