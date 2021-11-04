@@ -150,7 +150,7 @@ void ioopm_remove_cart_interface(warehouse_t *warehouse)
   bool result = ioopm_remove_cart(warehouse->carts, id);
   if(result)
   {
-    printf("The cart with ID: %d has been remover.", id);
+    printf("The cart with ID: %d has been removed.", id);
   }
   else
   {
@@ -299,6 +299,7 @@ void event_loop(ioopm_list_t *strdup_list, warehouse_t *warehouse)
           ioopm_linked_list_append(strdup_list, ptr_elem(merch_name));
           ioopm_edit_merch_interface(strdup_list, warehouse, merch_name);
           ioopm_list_merch(warehouse);
+          print_options_menu();
 
           break;
           case 5:
@@ -307,6 +308,7 @@ void event_loop(ioopm_list_t *strdup_list, warehouse_t *warehouse)
           ioopm_linked_list_append(strdup_list, ptr_elem(merch_name));
           ioopm_show_stock(warehouse, merch_name);
           make_spacing; 
+          print_options_menu();
           
           break;
           case 6:
@@ -325,6 +327,7 @@ void event_loop(ioopm_list_t *strdup_list, warehouse_t *warehouse)
           ioopm_linked_list_append(strdup_list, ptr_elem(merch_name));
           ioopm_linked_list_append(strdup_list, ptr_elem(shelf_name)); 
           make_spacing; 
+          print_options_menu();
           break;
           case 7:
 
@@ -333,16 +336,19 @@ void event_loop(ioopm_list_t *strdup_list, warehouse_t *warehouse)
           printf("A shopping cart has been created \n");
           printf("Cart ID: %d \n", cart_id);
           make_spacing; 
+          print_options_menu();
 
           break;
           case 8:
           ioopm_remove_cart_interface(warehouse);
+          print_options_menu();
           break;
 
           case 9:
           ioopm_add_cart_interface(strdup_list, warehouse);
           ioopm_list_carts(warehouse);
           make_spacing; 
+          print_options_menu();
 
           break;
           case 10:
@@ -350,20 +356,24 @@ void event_loop(ioopm_list_t *strdup_list, warehouse_t *warehouse)
           ioopm_remove_from_cart_interface(strdup_list, warehouse);
           ioopm_list_carts(warehouse);
           make_spacing; 
+          print_options_menu();
           break;
 
           case 11:
 
           ioopm_list_carts(warehouse);
           make_spacing; 
+          print_options_menu();
           break;
           
           case 12:
           ioopm_calculate_cost_interface(warehouse);
+          print_options_menu();
           break;
           
           case 13:
           ioopm_checkout_cart_interface(warehouse);
+          print_options_menu();
           break;
 
           case 0:

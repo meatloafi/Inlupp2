@@ -735,44 +735,48 @@ void print_carts (warehouse_t *warehouse)
         ioopm_list_t *item_keys;
         ioopm_list_t *item_quantities;
         
+        if(current_cart->id != 0)
+        {
+            printf(" \n Cart no.%d - ID: %d\n",i, current_cart->id);
 
-        printf(" \n Cart no.%d - ID: %d\n",i, current_cart->id);
-
-        if(!ioopm_hash_table_is_empty(current_cart->items))
-            { 
-                item_keys = ioopm_hash_table_keys(current_cart->items);
-                item_quantities = ioopm_hash_table_values(current_cart->items);  
-                printf(" \n   -Merch in cart:\n"); 
-                for (counter = 0; counter < ioopm_linked_list_size(item_keys); counter++)
-                {
-                   char *current_merch = ioopm_linked_list_get(item_keys, int_elem(counter)).func_point;
-                   size_t current_quantity = (size_t)ioopm_linked_list_get(item_quantities, int_elem(counter)).func_point;
-                   printf("\n   * Merch no.%d : %s -  Quantity %ld\n",counter+1, current_merch, current_quantity);
-                }
-                ioopm_linked_list_destroy(item_keys);
-                ioopm_linked_list_destroy(item_quantities);   
-        }   
-        
+            if(!ioopm_hash_table_is_empty(current_cart->items))
+                { 
+                    item_keys = ioopm_hash_table_keys(current_cart->items);
+                    item_quantities = ioopm_hash_table_values(current_cart->items);  
+                    printf(" \n   -Merch in cart:\n"); 
+                    for (counter = 0; counter < ioopm_linked_list_size(item_keys); counter++)
+                    {
+                    char *current_merch = ioopm_linked_list_get(item_keys, int_elem(counter)).func_point;
+                    size_t current_quantity = (size_t)ioopm_linked_list_get(item_quantities, int_elem(counter)).func_point;
+                    printf("\n   * Merch no.%d : %s -  Quantity %ld\n",counter+1, current_merch, current_quantity);
+                    }
+                    ioopm_linked_list_destroy(item_keys);
+                    ioopm_linked_list_destroy(item_quantities);   
+            }   
+        }
         while (ioopm_iterator_has_next(iter_carts))
                 {
                     ioopm_iterator_next(iter_carts);
                     current_cart = ioopm_iterator_current(iter_carts).func_point;
-                    printf(" \n Cart no.%d - ID: %d\n",i + 1, current_cart->id);
-                    item_keys = ioopm_hash_table_keys(current_cart->items);
-                    item_quantities = ioopm_hash_table_values(current_cart->items);
-                    if(!ioopm_hash_table_is_empty(current_cart->items))
+                    if(current_cart->id != 0)
                     {
-                        printf(" \n   -Merch in cart:\n"); 
-                        for (counter = 0; counter < ioopm_linked_list_size(item_keys); counter++)
+                        printf(" \n Cart no.%d - ID: %d\n",i + 1, current_cart->id);
+                        item_keys = ioopm_hash_table_keys(current_cart->items);
+                        item_quantities = ioopm_hash_table_values(current_cart->items);
+                        if(!ioopm_hash_table_is_empty(current_cart->items))
                         {
-                            char *current_merch = ioopm_linked_list_get(item_keys, int_elem(counter)).func_point;
-                            size_t current_quantity = (size_t)ioopm_linked_list_get(item_quantities, int_elem(counter)).func_point;
-                            printf("\n   * Merch no.%d : %s -  Quantity %ld\n",counter+1, current_merch, current_quantity);
+                            printf(" \n   -Merch in cart:\n"); 
+                            for (counter = 0; counter < ioopm_linked_list_size(item_keys); counter++)
+                            {
+                                char *current_merch = ioopm_linked_list_get(item_keys, int_elem(counter)).func_point;
+                                size_t current_quantity = (size_t)ioopm_linked_list_get(item_quantities, int_elem(counter)).func_point;
+                                printf("\n   * Merch no.%d : %s -  Quantity %ld\n",counter+1, current_merch, current_quantity);
+                            }
                         }
+                        ioopm_linked_list_destroy(item_keys);
+                        ioopm_linked_list_destroy(item_quantities);   
+                        i++;    
                     }
-                    ioopm_linked_list_destroy(item_keys);
-                    ioopm_linked_list_destroy(item_quantities);   
-                    i++;    
                 }
                 ioopm_iterator_destroy(iter_carts);
     }
@@ -791,6 +795,9 @@ bool ioopm_list_carts(warehouse_t *warehouse)
     print_carts(warehouse);
     return true;
 }
+
+
+
 bool ioopm_remove_cart(ioopm_list_t *carts, int cart_id)
 {
     if(ioopm_linked_list_is_empty(carts))
@@ -803,14 +810,10 @@ bool ioopm_remove_cart(ioopm_list_t *carts, int cart_id)
 
     if(current_cart->id == cart_id)
     {
-        ioopm_hash_table_destroy(current_cart->items);
-        ioopm_linked_list_remove(carts, int_elem(index));
-        // free(current_cart);
+        current_cart->id = 0;
         ioopm_iterator_destroy(iter);
-
         return true;
     }
-    ioopm_iterator_next(iter);
     index++;
 
     while(ioopm_iterator_has_next(iter))
@@ -820,14 +823,54 @@ bool ioopm_remove_cart(ioopm_list_t *carts, int cart_id)
 
         if(current_cart->id == cart_id)
         {
-        ioopm_hash_table_destroy(current_cart->items);
-        ioopm_linked_list_remove(carts, int_elem(index));
-        // free(current_cart);
-        ioopm_iterator_destroy(iter);
-
-        return true;
+            current_cart->id = 0;
+            ioopm_iterator_destroy(iter);
+            return true;
         }
         index++;
     }
+    ioopm_iterator_destroy(iter);
     return false;
 }
+
+// bool ioopm_remove_cart(ioopm_list_t *carts, int cart_id)
+// {
+//     if(ioopm_linked_list_is_empty(carts))
+//     {
+//         return false;
+//     }
+//     int index = 0;
+//     ioopm_list_iterator_t *iter = ioopm_list_iterator(carts);
+//     cart_t *current_cart = ioopm_iterator_current(iter).func_point;
+
+//     if(current_cart->id == cart_id)
+//     {
+//         ioopm_hash_table_destroy(current_cart->items);
+//         ioopm_linked_list_remove(carts, int_elem(index));
+//         // free(current_cart);
+//         ioopm_iterator_destroy(iter);
+
+//         return true;
+//     }
+//     ioopm_iterator_next(iter);
+//     index++;
+
+//     while(ioopm_iterator_has_next(iter))
+//     {
+//         ioopm_iterator_next(iter);
+//         current_cart = ioopm_iterator_current(iter).func_point;
+
+//         if(current_cart->id == cart_id)
+//         {
+//         ioopm_hash_table_destroy(current_cart->items);
+//         ioopm_linked_list_remove(carts, int_elem(index));
+//         // free(current_cart);
+//         ioopm_iterator_destroy(iter);
+
+//         return true;
+//         }
+//         index++;
+//     }
+//     ioopm_iterator_destroy(iter);
+//     return false;
+// }
