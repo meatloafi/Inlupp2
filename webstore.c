@@ -736,8 +736,8 @@ void print_carts (warehouse_t *warehouse)
                 for (counter = 0; counter < ioopm_linked_list_size(item_keys); counter++)
                 {
                    char *current_merch = ioopm_linked_list_get(item_keys, int_elem(counter)).func_point;
-                   int current_quantity = ioopm_linked_list_get(item_quantities, int_elem(counter)).func_point;
-                   printf("\n   * Merch no.%d : %s -  Quantity %d\n",counter+1, current_merch, current_quantity);
+                   size_t current_quantity = (size_t)ioopm_linked_list_get(item_quantities, int_elem(counter)).func_point;
+                   printf("\n   * Merch no.%d : %s -  Quantity %ld\n",counter+1, current_merch, current_quantity);
                 }
                 ioopm_linked_list_destroy(item_keys);
                 ioopm_linked_list_destroy(item_quantities);   
@@ -756,8 +756,8 @@ void print_carts (warehouse_t *warehouse)
                         for (counter = 0; counter < ioopm_linked_list_size(item_keys); counter++)
                         {
                             char *current_merch = ioopm_linked_list_get(item_keys, int_elem(counter)).func_point;
-                            int current_quantity = ioopm_linked_list_get(item_quantities, int_elem(counter)).func_point;
-                            printf("\n   * Merch no.%d : %s -  Quantity %d\n",counter+1, current_merch, current_quantity);
+                            size_t current_quantity = (size_t)ioopm_linked_list_get(item_quantities, int_elem(counter)).func_point;
+                            printf("\n   * Merch no.%d : %s -  Quantity %ld\n",counter+1, current_merch, current_quantity);
                         }
                     }
                     ioopm_linked_list_destroy(item_keys);
