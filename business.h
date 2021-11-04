@@ -64,7 +64,7 @@ bool ioopm_remove_merch(warehouse_t *warehouse, char *merch_name);
 /// @param new_desc The new description of the merchandise
 /// @param new_price The new price of the merchanise
 /// @return The edited merchandise TODO:
-bool ioopm_edit_merch(warehouse_t *warehouse, char *merch, char *new_name, char *new_desc, size_t new_price, ioopm_list_t *edit_list);
+bool ioopm_edit_merch(warehouse_t *warehouse, char *merch, char *new_name, char *new_desc, size_t new_price);
 
 /// @brief Lists where the item is stored as well as the quantity of it in each storage location
 /// @param warehouse The warehouse where the merchandise is stored

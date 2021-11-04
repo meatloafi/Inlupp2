@@ -289,7 +289,7 @@ bool ioopm_remove_merch(warehouse_t *warehouse, char *merch_name)
 }
 
 
-bool ioopm_edit_merch(warehouse_t *warehouse, char *merch_name, char *new_name, char *new_desc, size_t new_price, ioopm_list_t *edit_list)
+bool ioopm_edit_merch(warehouse_t *warehouse, char *merch_name, char *new_name, char *new_desc, size_t new_price)
 {
     elem_t to_edit;
     bool result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(merch_name), &to_edit);
@@ -314,7 +314,10 @@ bool ioopm_edit_merch(warehouse_t *warehouse, char *merch_name, char *new_name, 
     updated_merch->location = current_merch->location;
     updated_merch->total_stock = current_merch->total_stock;
     updated_merch->lock = false;
-    ioopm_linked_list_append(edit_list, ptr_elem(updated_merch));
+
+    elem_t prev_merch_to_free;
+    ioopm_hash_table_lookup(warehouse->items, ptr_elem(merch_name), &prev_merch_to_free);
+    free(prev_merch_to_free.func_point);
     ioopm_hash_table_remove(warehouse->items, ptr_elem(merch_name));
     ioopm_hash_table_insert(warehouse->items, ptr_elem(new_name), ptr_elem(updated_merch));
 
@@ -348,7 +351,7 @@ void print_locations (warehouse_t *warehouse, merch_t *merch)
 {
     ioopm_list_iterator_t *iter_locations = ioopm_list_iterator(merch->location);
     int i = 1;
-    
+
     char *current_shelf = ioopm_iterator_current(iter_locations).func_point;
 
     elem_t shelf_elem;
@@ -357,7 +360,7 @@ void print_locations (warehouse_t *warehouse, merch_t *merch)
 
     printf("Storage location no.%d : %s\n",i, current_shelf);
     printf("- Stock in %s: %ld \n",current_shelf, shelf->stock);
-    
+
     while (ioopm_iterator_has_next(iter_locations))
     {
         ioopm_iterator_next(iter_locations);
