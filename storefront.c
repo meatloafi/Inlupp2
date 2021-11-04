@@ -82,65 +82,6 @@ struct iter
 };
 
 
-// void ioopm_add_merch(warehouse_t *warehouse)
-// {
-//     char *name_sd = ask_question_string("Name: ");
-//     char *desc_sd = ask_question_string("Description: ");
-//     size_t price = ask_question_int("Price: ");
-//     char name[255] = {0};
-//     char desc[255] = {0};
-//     strcat(name, name_sd);
-//     strcat(desc, desc_sd);
-//     free(name_sd);
-//     free(desc_sd);
-//     int id = warehouse->item_count;
-
-//     // char shelf_section = (ask_question_char("Shelf section: "));
-//     // int shelf_number = ask_question_int("Shelf number: ");
-//     char *shelf_UI = ask_question_shelf("Shelf section and number: ");
-//     shelf_t *shelf = create_shelf(shelf_UI);
-//     ioopm_linked_list_append(new_merch->location, ptr_elem(&shelf));
-
-//     ioopm_hash_table_insert(warehouse->shelves, ptr_elem(new_merch->name), ptr_elem(&shelf));
-    
-//     if(!ioopm_hash_table_has_key(warehouse->items, ptr_elem(new_merch->name))) // TODO; Verkar inte förhindra att man kan stoppa många med samma namn
-//     {
-//         merch_t *new_merch = create_merch(id, name, desc, price);
-//         ioopm_hash_table_insert(warehouse->items, ptr_elem(new_merch->name), ptr_elem(new_merch));
-//     }
-//     warehouse->item_count++;
-// }
-
-
-// void ioopm_list_merch(warehouse_t *warehouse)
-// {
-//     ioopm_list_t *items = ioopm_hash_table_keys(warehouse->items);
-//     size_t items_size = ioopm_linked_list_size(items);
-
-//     char **keys = calloc(items_size+1, sizeof(char *));
-//     int i;
-
-//     if (ioopm_linked_list_is_empty(items))
-//     {
-//         printf("The warehouse is empty \n");
-//     }
-//     else
-//     {
-//         for(i = 0; i < items_size; i++) // alla namn på merch till en array
-//         {
-//             keys[i] = ioopm_linked_list_get(items, i).extra;
-//         }
-
-//     for (i = 0; i < items_size; i++)  // printar namnen på all merch
-//         {                                 // TODO: printa 20 items i taget
-//             printf ("%d. %s \n",(i+1), keys[i]);
-//         }
-//     }
-//     free(keys);
-//     ioopm_linked_list_destroy(items);
-// }
-
-
 void ioopm_add_merch_interface(ioopm_list_t *strdup_list, warehouse_t *warehouse)
 {
   make_spacing;
