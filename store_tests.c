@@ -195,8 +195,6 @@ void test_edit_merch()
   warehouse_t *warehouse = ioopm_warehouse_create();
   ioopm_add_merch(warehouse, name, desc, price);
 
-  ioopm_replenish_stock(warehouse, "test name", "B15", 50);
-
   result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name), &merch_ptr);
   merch = merch_ptr.func_point;
   CU_ASSERT_FALSE(strcmp(merch->description, desc_edit) == 0);
@@ -204,15 +202,11 @@ void test_edit_merch()
   ioopm_edit_merch(warehouse, name, name_edit, desc_edit, price);
 
   result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name), &merch_ptr);
-  CU_ASSERT_FALSE(result);
-  // merch = merch_ptr.func_point;
-  // CU_ASSERT_EQUAL(merch->description, desc_edit);
+  merch = merch_ptr.func_point;
+  CU_ASSERT_EQUAL(merch->description, desc_edit);
 
-  elem_t merch_ptr2;
-  result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name_edit), &merch_ptr2); //ska vara true, key har inte uppdaterats, value rätt men key fel
+  result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name_edit), &merch_ptr); //ska vara true, key har inte uppdaterats, value rätt men key fel
   CU_ASSERT_TRUE(result);
-  // merch = merch_ptr2.func_point;
-  // CU_ASSERT_EQUAL(merch->description, desc_edit);
   result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name), &merch_ptr); //ska vara false, key har inte uppdaterats, value rätt men key fel
   CU_ASSERT_FALSE(result);
 
@@ -440,19 +434,7 @@ int main()
     
     (NULL == CU_add_test(store_test_suite1, "test ioopm_calc_cart_cost", test_cart_cost))||
     
-    (NULL == CU_add_test(store_test_suite1, "test ioopm_cart_checkout", test_cart_checkout))/*||
-    
-    (NULL == CU_add_test(HT_test_suite1, "test table empty 2", test_table_empty2))||
-    
-    (NULL == CU_add_test(HT_test_suite1, "test table clear1", test_table_clear1))||
-    
-    (NULL == CU_add_test(HT_test_suite1, "test has value1", test_has_value1))|| 
-    
-    (NULL == CU_add_test(HT_test_suite1, "test has key1", test_has_key1))|| 
-
-    (NULL == CU_add_test(HT_test_suite1, "test apply to all", test_apply_to_all))|| 
-
-    (NULL == CU_add_test(HT_test_suite1, "test resize",  test_resize))*/)
+    (NULL == CU_add_test(store_test_suite1, "test ioopm_cart_checkout", test_cart_checkout)))
 
     {
       CU_cleanup_registry();

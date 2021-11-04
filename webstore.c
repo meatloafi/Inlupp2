@@ -123,19 +123,24 @@ static void free_all_shelves(ioopm_hash_table_t *shelves) // FIXME: när repleni
     ioopm_linked_list_destroy(shelves_list);
 }
 
-static void free_all_carts(ioopm_list_t *carts)
-{
-    size_t carts_size = ioopm_linked_list_size(carts);
 
-    for(size_t i = 0; i < carts_size; i++)
-    {
-        elem_t current_cart_elem = ioopm_linked_list_get(carts, int_elem(i));
-        ioopm_hash_table_t *current_cart_ht = (ioopm_hash_table_t *)current_cart_elem.func_point;
-        ioopm_hash_table_destroy(current_cart_ht);
-        // cart_t *current_cart = (cart_t *)current_cart_elem.func_point;
-        // free(current_cart);
-    }
-    ioopm_linked_list_destroy(carts);
+static void free_all_carts(warehouse_t *warehouse)
+{
+        ioopm_list_iterator_t *iter_carts = ioopm_list_iterator(warehouse->carts);
+
+        cart_t *current_cart = ioopm_iterator_current(iter_carts).func_point;
+
+        ioopm_hash_table_destroy(current_cart->items);
+        free(current_cart);
+        while (ioopm_iterator_has_next(iter_carts))
+        {
+            ioopm_iterator_next(iter_carts);
+            current_cart = ioopm_iterator_current(iter_carts).func_point;
+            ioopm_hash_table_destroy(current_cart->items);
+            free(current_cart);
+        }
+        ioopm_iterator_destroy(iter_carts);
+
 }
 
 
@@ -154,10 +159,13 @@ void merch_destroy(merch_t *merch)
 
 void ioopm_warehouse_destroy(warehouse_t *warehouse)
 {
-    ioopm_linked_list_destroy(warehouse->carts);
+    if (ioopm_linked_list_size(warehouse->carts) != 0)
+    {
+        free_all_carts(warehouse);
+    }
     free_all_shelves(warehouse->shelves);
     free_all_merch(warehouse->items);
-    // free_all_carts(warehouse->carts);
+    ioopm_linked_list_destroy(warehouse->carts);
     free(warehouse);
 }
 
