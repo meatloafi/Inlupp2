@@ -211,8 +211,10 @@ shelf_t *create_shelf(char *shelf_name)
 
 bool ioopm_add_merch(warehouse_t *warehouse, char *name, char *desc, size_t price) //success shown by bool value
 {
-    if(ioopm_hash_table_has_key(warehouse->items, ptr_elem(name), warehouse->items->predicate_ptr))
+    elem_t elem_ignored;
+    if(ioopm_hash_table_lookup(warehouse->items, ptr_elem(name), &elem_ignored))
     {
+        printf("hej");
         return false;
     }
     else
@@ -293,10 +295,18 @@ bool ioopm_remove_merch(warehouse_t *warehouse, char *merch_name)
 bool ioopm_edit_merch(warehouse_t *warehouse, char *merch_name, char *new_name, char *new_desc, size_t new_price)
 {
     elem_t to_edit;
+
     bool result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(merch_name), &to_edit);
     if(!result)
     {
         printf("The merchandise named %s could not be found.\n", merch_name);
+        return false;
+    }
+    
+    elem_t elem_ignored;
+    if(ioopm_hash_table_lookup(warehouse->items, ptr_elem(new_name), &elem_ignored))
+    {
+        printf("There is already a merchandise with the name %s.", new_name);
         return false;
     }
 
@@ -557,13 +567,13 @@ bool ioopm_add_to_cart(warehouse_t *warehouse, cart_t *cart, char *merch_name, s
         
         if(merch->unused_stock == 0)
         {
-            printf(" \n All stock the of that item is being used \n");
+            printf("\nAll the stock of that item is currently being used.\n");
             return false;
         }
 
         if(quantity > merch->unused_stock)
         {
-            printf(" \n The stock of the item: %s is depleted.\n Try adding less or remove the item from other carts. \n", merch_name);
+            printf(" \nThe stock of the item: %s is depleted.\nTry adding less or remove the item from other carts. There are %ld available.\n", merch_name, merch->unused_stock);
             return false;
         }
 
@@ -798,19 +808,31 @@ bool ioopm_list_carts(warehouse_t *warehouse)
 
 
 
-bool ioopm_remove_cart(ioopm_list_t *carts, int cart_id)
+bool ioopm_remove_cart(warehouse_t *warehouse, int cart_id)
 {
-    if(ioopm_linked_list_is_empty(carts))
+    if(ioopm_linked_list_is_empty(warehouse->carts))
     {
         return false;
     }
     int index = 0;
-    ioopm_list_iterator_t *iter = ioopm_list_iterator(carts);
+    ioopm_list_iterator_t *iter = ioopm_list_iterator(warehouse->carts);
     cart_t *current_cart = ioopm_iterator_current(iter).func_point;
+
 
     if(current_cart->id == cart_id)
     {
+        ioopm_list_t *item_keys = ioopm_hash_table_keys(current_cart->items);
+        ioopm_list_t *item_values = ioopm_hash_table_values(current_cart->items);
+        size_t items_size = ioopm_hash_table_size(current_cart->items);
+        for (size_t i = 0; i < items_size; i++)
+        {
+            elem_t merch_name = ioopm_linked_list_get(item_keys, int_elem(i));
+            elem_t quantity = ioopm_linked_list_get(item_values, int_elem(i));
+            ioopm_remove_from_cart(warehouse, current_cart, (char *)merch_name.func_point, (size_t)quantity.func_point);
+        }
         current_cart->id = 0;
+        ioopm_linked_list_destroy(item_keys);
+        ioopm_linked_list_destroy(item_values);
         ioopm_iterator_destroy(iter);
         return true;
     }
@@ -823,7 +845,20 @@ bool ioopm_remove_cart(ioopm_list_t *carts, int cart_id)
 
         if(current_cart->id == cart_id)
         {
+            ioopm_list_t *item_keys = ioopm_hash_table_keys(current_cart->items);
+            ioopm_list_t *item_values = ioopm_hash_table_values(current_cart->items);
+            size_t items_size = ioopm_hash_table_size(current_cart->items);
+            for (size_t i = 0; i < items_size; i++)
+            {
+                elem_t merch_name = ioopm_linked_list_get(item_keys, int_elem(i));
+                elem_t quantity = ioopm_linked_list_get(item_values, int_elem(i));
+                ioopm_remove_from_cart(warehouse, current_cart, (char *)merch_name.func_point, (size_t)quantity.func_point);
+            }
+
+
             current_cart->id = 0;
+            ioopm_linked_list_destroy(item_keys);
+            ioopm_linked_list_destroy(item_values);
             ioopm_iterator_destroy(iter);
             return true;
         }
@@ -832,45 +867,3 @@ bool ioopm_remove_cart(ioopm_list_t *carts, int cart_id)
     ioopm_iterator_destroy(iter);
     return false;
 }
-
-// bool ioopm_remove_cart(ioopm_list_t *carts, int cart_id)
-// {
-//     if(ioopm_linked_list_is_empty(carts))
-//     {
-//         return false;
-//     }
-//     int index = 0;
-//     ioopm_list_iterator_t *iter = ioopm_list_iterator(carts);
-//     cart_t *current_cart = ioopm_iterator_current(iter).func_point;
-
-//     if(current_cart->id == cart_id)
-//     {
-//         ioopm_hash_table_destroy(current_cart->items);
-//         ioopm_linked_list_remove(carts, int_elem(index));
-//         // free(current_cart);
-//         ioopm_iterator_destroy(iter);
-
-//         return true;
-//     }
-//     ioopm_iterator_next(iter);
-//     index++;
-
-//     while(ioopm_iterator_has_next(iter))
-//     {
-//         ioopm_iterator_next(iter);
-//         current_cart = ioopm_iterator_current(iter).func_point;
-
-//         if(current_cart->id == cart_id)
-//         {
-//         ioopm_hash_table_destroy(current_cart->items);
-//         ioopm_linked_list_remove(carts, int_elem(index));
-//         // free(current_cart);
-//         ioopm_iterator_destroy(iter);
-
-//         return true;
-//         }
-//         index++;
-//     }
-//     ioopm_iterator_destroy(iter);
-//     return false;
-// }
