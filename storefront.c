@@ -147,7 +147,7 @@ void ioopm_remove_cart_interface(warehouse_t *warehouse)
 {
   make_spacing;
   int id = ask_question_int("Which cart do you wish to remove?:  ");
-  bool result = ioopm_remove_cart(warehouse->carts, id);
+  bool result = ioopm_remove_cart(warehouse, id);
   if(result)
   {
     printf("The cart with ID: %d has been removed.", id);
@@ -230,7 +230,7 @@ void ioopm_checkout_cart_interface(warehouse_t *warehouse)
   {
     ioopm_checkout_cart(warehouse, cart);
     printf("The cart id:%ld was checked out!\n", cart->id);
-    ioopm_remove_cart(warehouse->carts, id);
+    ioopm_remove_cart(warehouse, id);
   }
   else
   {
@@ -333,7 +333,7 @@ void event_loop(ioopm_list_t *strdup_list, warehouse_t *warehouse)
 
           cart = ioopm_cart_create(warehouse);
           int cart_id = cart->id;
-          printf("A shopping cart has been created \n");
+          printf("\nA shopping cart has been created.\n");
           printf("Cart ID: %d \n", cart_id);
           make_spacing; 
           print_options_menu();
