@@ -24,39 +24,35 @@ typedef struct cart cart_t;
 /// @brief The shelf is the storage space for a merchandise and is itself a link in a linked list.
 typedef struct shelf shelf_t;
 
-#define make_spacing  printf("\n----------------------------------------------------------\n")
-
-/// @brief 
-/// @param 
-/// @param 
-/// @param 
-/// @param 
-/// @return
+/// @brief Creates a merchendise
+/// @param id the merchendise id
+/// @param name the merchendise name
+/// @param desc the merchendise description
+/// @param price the price of the merchendise
+/// @return A new merchendise
 merch_t *create_merch(int id, char *name, char *desc, size_t price);
 
-/// @brief 
-/// @return
+/// @brief Create a warehouse
+/// @return The new warehouse
 warehouse_t *ioopm_warehouse_create();
 
-/// @brief 
-/// @param 
-/// @return
-void ioopm_warehouse_destroy();
+/// @brief Destroy a warehouse
+/// @param warehouse The warehouse to be destroyed
+void ioopm_warehouse_destroy(warehouse_t *warehouse);
 
-/// @brief 
-/// @param 
-/// @return
+/// @brief Create a cart in a warehouse
+/// @param warehouse the warehouse where the cart will be created
+/// @return The new cart
 cart_t *ioopm_cart_create(warehouse_t *warehouse);
 
-/// @brief 
-/// @param 
-/// @return
+/// @brief Create a shelf
+/// @param shelf_name the name of the new shelf
+/// @return The new shelf with the shelf name
 shelf_t *create_shelf(char *shelf_name);
 
-/// @brief 
-/// @param 
-/// @param 
-/// @return
+/// @brief frees all elements
+/// @param keys an array of keys
+/// @param size the length of the array keys
 void key_array_destroy(char **keys, size_t size);
 
 /// @brief Adds a new item to the warehouse
@@ -69,12 +65,6 @@ bool ioopm_add_merch(warehouse_t *warehouse, char *name_sd, char *desc_sd, size_
 /// @param warehouse The warehouse containing current 
 /// @return prints 20 items at a time, the user can continue to print the next 20 items
 void ioopm_list_merch(warehouse_t *warehouse);
-
-/// @brief 
-/// @param 
-/// @param 
-/// @return
-merch_t *merch_get(warehouse_t *warehouse, char *merch_name);
 
 /// @brief Completely removes an item from the warehouse
 /// @param warehouse The warehouse which is being modified by removing the merch
@@ -112,11 +102,11 @@ ioopm_hash_table_t ioopm_create_cart(ioopm_hash_table_t *cart);
 // void ioopm_remove_cart(warehouse_t *warehouse, cart_t *cart);
 bool ioopm_remove_cart(warehouse_t *warehouse, int cart_id);
 
-/// @brief 
-/// @param 
-/// @param 
-/// @param 
-/// @return
+/// @brief Takes the id of a cart and finds its corresponding cart
+/// @param warehouse the warehouse where the cart is located
+/// @param cart_id the id of the cart to be be found
+/// @param cart the cart pointer which if found the cart_id's corresponding cart will be applied to
+/// @return Whether the get cart was successfull or not
 bool get_cart(warehouse_t *warehouse, int cart_id, cart_t **cart);
 
 /// @brief Adds a quantity of merchandise to the cart
@@ -145,9 +135,9 @@ void ioopm_checkout_cart(warehouse_t *warehouse, cart_t *cart);
 /// @brief Quits the program.
 void ioopm_quit();
 
-/// @brief 
-/// @param 
-/// @return
+/// @brief Lists all carts in a warehouse
+/// @param warehouse the warehouse where the carts are located
+/// @return Whether the list was successfull or not
 bool ioopm_list_carts(warehouse_t *warehouse);
 /*
 /// @brief OPTIONAL Undos an action.

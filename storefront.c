@@ -15,6 +15,8 @@ typedef struct shelf shelf_t;
 typedef struct warehouse warehouse_t;
 
 
+#define make_spacing  printf("\n----------------------------------------------------------\n")
+
 struct merch 
 {
     int id;
