@@ -791,7 +791,6 @@ bool ioopm_list_carts(warehouse_t *warehouse)
     print_carts(warehouse);
     return true;
 }
-
 bool ioopm_remove_cart(ioopm_list_t *carts, int cart_id)
 {
     if(ioopm_linked_list_is_empty(carts))
@@ -800,27 +799,32 @@ bool ioopm_remove_cart(ioopm_list_t *carts, int cart_id)
     }
     int index = 0;
     ioopm_list_iterator_t *iter = ioopm_list_iterator(carts);
-    if(((cart_t *)ioopm_iterator_current(iter).func_point)->id == cart_id)
+    cart_t *current_cart = ioopm_iterator_current(iter).func_point;
+
+    if(current_cart->id == cart_id)
     {
-        elem_t cart_elem = ioopm_linked_list_get(carts, int_elem(index));
-        cart_t *cart = cart_elem.func_point;
-        ioopm_hash_table_destroy(cart->items);
+        ioopm_hash_table_destroy(current_cart->items);
         ioopm_linked_list_remove(carts, int_elem(index));
+        // free(current_cart);
         ioopm_iterator_destroy(iter);
+
         return true;
     }
     ioopm_iterator_next(iter);
     index++;
+
     while(ioopm_iterator_has_next(iter))
     {
         ioopm_iterator_next(iter);
-        if(((cart_t *)ioopm_iterator_current(iter).func_point)->id == cart_id)
+        current_cart = ioopm_iterator_current(iter).func_point;
+
+        if(current_cart->id == cart_id)
         {
-        elem_t cart_elem = ioopm_linked_list_get(carts, int_elem(index));
-        cart_t *cart = cart_elem.func_point;
-        ioopm_hash_table_destroy(cart->items);
+        ioopm_hash_table_destroy(current_cart->items);
         ioopm_linked_list_remove(carts, int_elem(index));
+        // free(current_cart);
         ioopm_iterator_destroy(iter);
+
         return true;
         }
         index++;
