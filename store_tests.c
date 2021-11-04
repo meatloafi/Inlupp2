@@ -35,6 +35,8 @@ struct merch
     char *description;
     ioopm_list_t *location;
     size_t total_stock;
+    size_t unused_stock;
+    bool lock;
 };
 
 
@@ -96,52 +98,9 @@ void test_add_merch()
   result = ioopm_hash_table_lookup(warehouse->items, ptr_elem("test name"), &merch); //id på första tillagda merch -> 1
   CU_ASSERT_TRUE(result);
 
-  // ioopm_linked_list_destroy(((merch_t *)merch.func_point)->location);
-  // free(((merch_t *)merch.func_point)->location);
   ioopm_warehouse_destroy(warehouse);
 }
 
-
-// void test_ht_to_list() //kanske lite dum, ska komma på nåt sätt att testa list_merch
-// {                      //rätt keys finns i listorna men vi behöver få ut value som har infon om merch
-//   char *name = "test name";
-//   char *name2 = "name";
-//   char *desc = "test desc";
-//   size_t price = 13;
-//   bool result = NULL;
-
-//   warehouse_t *warehouse = ioopm_warehouse_create();
-
-//   result = ioopm_hash_table_is_empty(warehouse->items);
-//   CU_ASSERT_TRUE(result);
-
-//   ioopm_add_merch(warehouse, name, desc, price);
-//   result = ioopm_hash_table_is_empty(warehouse->items);
-//   CU_ASSERT_FALSE(result);
-
-//   ioopm_add_merch(warehouse, name2, desc, price);
-//   size_t ht_size = ioopm_hash_table_size(warehouse->items);
-//   CU_ASSERT_EQUAL(ht_size, 2);
-
-//   ioopm_list_t *items = ioopm_hash_table_keys(warehouse->items);
-//   size_t list_size = ioopm_linked_list_size(items);
-//   CU_ASSERT_EQUAL(ht_size, list_size);
-
-//   ioopm_hash_table_lookup(warehouse->items, int_elem(1), &result);
-//   CU_ASSERT_TRUE(result);
-
-//   ioopm_hash_table_lookup(warehouse->items, int_elem(2), &result);
-//   CU_ASSERT_TRUE(result);
-
-//   result = ioopm_linked_list_contains(items, int_elem(1));
-//   CU_ASSERT_TRUE(result);
-
-//   result = ioopm_linked_list_contains(items, int_elem(2));
-//   CU_ASSERT_TRUE(result);
-
-//   ioopm_warehouse_destroy(warehouse);
-//   ioopm_linked_list_destroy(items);
-// }
 
 void test_remove_merch()
 {
@@ -198,17 +157,30 @@ void test_edit_merch()
   result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name), &merch_ptr);
   merch = merch_ptr.func_point;
   CU_ASSERT_FALSE(strcmp(merch->description, desc_edit) == 0);
+  CU_ASSERT_TRUE(strcmp(merch->description, desc) == 0);
 
   ioopm_edit_merch(warehouse, name, name_edit, desc_edit, price);
 
   result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name), &merch_ptr);
-  merch = merch_ptr.func_point;
-  CU_ASSERT_EQUAL(merch->description, desc_edit);
-
+  CU_ASSERT_FALSE(result);
   result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name_edit), &merch_ptr); //ska vara true, key har inte uppdaterats, value rätt men key fel
   CU_ASSERT_TRUE(result);
-  result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name), &merch_ptr); //ska vara false, key har inte uppdaterats, value rätt men key fel
-  CU_ASSERT_FALSE(result);
+
+  result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name_edit), &merch_ptr);
+  merch = merch_ptr.func_point;
+  CU_ASSERT_FALSE(strcmp(merch->description, desc) == 0);
+  CU_ASSERT_TRUE(strcmp(merch->description, desc_edit) == 0);
+  CU_ASSERT_FALSE(strcmp(merch->name, name) == 0);
+  CU_ASSERT_TRUE(strcmp(merch->name, name_edit) == 0);
+
+  ioopm_edit_merch(warehouse, name_edit, name, desc, price);
+
+  result = ioopm_hash_table_lookup(warehouse->items, ptr_elem(name), &merch_ptr);
+  merch = merch_ptr.func_point;
+  CU_ASSERT_FALSE(strcmp(merch->description, desc_edit) == 0);
+  CU_ASSERT_TRUE(strcmp(merch->description, desc) == 0);
+  CU_ASSERT_FALSE(strcmp(merch->name, name_edit) == 0);
+  CU_ASSERT_TRUE(strcmp(merch->name, name) == 0);
 
   ioopm_warehouse_destroy(warehouse);
 }
@@ -220,28 +192,54 @@ void test_replenish()
 
   ioopm_add_merch(warehouse, "first item", "test desc", 10);
   ioopm_add_merch(warehouse, "second merchandise", "test desc", 40);
-  // cart_t *cart1 = ioopm_cart_create(warehouse);
-  // cart_t *cart2 = ioopm_cart_create(warehouse);
   
   ioopm_replenish_stock(warehouse, "first item", "B45", 20);
   ioopm_replenish_stock(warehouse, "first item", "B45", 10);
-  ioopm_replenish_stock(warehouse, "second merchandise", "A12", 40);
-  ioopm_replenish_stock(warehouse, "second merchandise", "Q90", 10);
+  ioopm_replenish_stock(warehouse, "second merchandise", "A12", 50);
 
-  elem_t merch1;
-  elem_t merch2;
+  elem_t merch1_elem, merch2_elem, shelf1_elem, shelf2_elem, shelf3_elem;
 
-  ioopm_hash_table_lookup(warehouse->items, ptr_elem("first item"), &merch1);
-  ioopm_hash_table_lookup(warehouse->items, ptr_elem("second merchandise"), &merch2);
+  ioopm_hash_table_lookup(warehouse->items, ptr_elem("first item"), &merch1_elem);
+  ioopm_hash_table_lookup(warehouse->items, ptr_elem("second merchandise"), &merch2_elem);
 
-  merch_t *item1 = merch1.func_point;
-  merch_t *item2 = merch2.func_point;
-
+  merch_t *item1 = merch1_elem.func_point;
+  merch_t *item2 = merch2_elem.func_point;
   ioopm_list_t *shelves_item1 = item1->location;
   ioopm_list_t *shelves_item2 = item2->location;
+  elem_t shelf_item1 = ioopm_linked_list_get(shelves_item1, int_elem(0));
+  elem_t shelf_item2 = ioopm_linked_list_get(shelves_item2, int_elem(0));
+  char *shelf1 = shelf_item1.func_point;
+  char *shelf2 = shelf_item2.func_point;
+  size_t quantity1 = item1->total_stock;
+  size_t quantity2 = item2->total_stock;
 
+  CU_ASSERT_TRUE(strcmp(shelf1, "B45") == 0);
+  CU_ASSERT_TRUE(strcmp(shelf2 , "A12") == 0);
+  CU_ASSERT_EQUAL(quantity1, 30);
+  CU_ASSERT_EQUAL(quantity2, 50);
 
-  
+  ioopm_replenish_stock(warehouse, "second merchandise", "Q90", 50);
+  shelf_item2 = ioopm_linked_list_get(shelves_item2, int_elem(0));
+  quantity2 = item2->total_stock;
+  CU_ASSERT_EQUAL(quantity2, 100);
+
+  ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("B45"), &shelf1_elem);
+  ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("A12"), &shelf2_elem);
+  ioopm_hash_table_lookup(warehouse->shelves, ptr_elem("Q90"), &shelf3_elem);
+
+  shelf_t *shelf_1 = shelf1_elem.func_point;
+  shelf_t *shelf_2 = shelf2_elem.func_point;
+  shelf_t *shelf_3 = shelf3_elem.func_point;
+
+  CU_ASSERT_TRUE(strcmp(shelf_1->shelf, "B45") == 0);
+  CU_ASSERT_TRUE(strcmp(shelf_2->shelf, "A12") == 0);
+  CU_ASSERT_TRUE(strcmp(shelf_3->shelf, "Q90") == 0);
+  CU_ASSERT_EQUAL(shelf_1->stock, 30);
+  CU_ASSERT_EQUAL(shelf_2->stock, 50);
+  CU_ASSERT_EQUAL(shelf_3->stock, 50);
+  CU_ASSERT_TRUE(strcmp(shelf_1->item_in_shelf, "first item") == 0);
+  CU_ASSERT_TRUE(strcmp(shelf_2->item_in_shelf, "second merchandise") == 0);
+  CU_ASSERT_TRUE(strcmp(shelf_3->item_in_shelf, "second merchandise") == 0);
 
   ioopm_warehouse_destroy(warehouse);
 }
@@ -277,9 +275,7 @@ void test_add_to_cart()
 
   result = ioopm_hash_table_lookup(cart->items, ptr_elem("test not present in cart"), &merch);
   CU_ASSERT_FALSE(result);
-  
-  // free(cart); // FIXME: frigör detta i free_all_carts istället
-  // free(cart2); // FIXME:
+
   ioopm_warehouse_destroy(warehouse);
 }
 
@@ -320,16 +316,12 @@ void test_remove_from_cart()
   result = ioopm_hash_table_lookup(cart->items, ptr_elem("stol"), &merch);
   CU_ASSERT_FALSE(result);  
   
-  // free(cart); //FIXME: gör detta i free_all_carts
   ioopm_warehouse_destroy(warehouse);
 }
 
 
 void test_cart_cost()
 {
-  // elem_t merch;
-  // bool result = NULL;
-
   warehouse_t *warehouse = ioopm_warehouse_create();
   ioopm_add_merch(warehouse, "bord", "trä", 13);
   ioopm_add_merch(warehouse, "stol", "trä", 13);
@@ -344,7 +336,6 @@ void test_cart_cost()
   size_t total_price = ioopm_calc_cost_cart(warehouse, cart);
   CU_ASSERT_EQUAL(total_price, 299);
 
-  // free(cart); //FIXME:
   ioopm_warehouse_destroy(warehouse);
 }
 
@@ -394,7 +385,10 @@ void test_cart_checkout()
   size = ioopm_linked_list_size(shelves);
   CU_ASSERT_EQUAL(size, 0);
 
-  // free(cart);
+  ioopm_remove_cart(warehouse->carts, 1);
+  // size_t carts_quantity = ioopm_linked_list_size(warehouse->carts);
+  // CU_ASSERT_EQUAL(carts_quantity, 0);
+
   ioopm_warehouse_destroy(warehouse);
 
 }
@@ -417,10 +411,6 @@ int main()
 
   if 
     ((NULL == CU_add_test(store_test_suite1, "test ioopm_add_merch", test_add_merch))||
-
-    /*(NULL == CU_add_test(store_test_suite1, "test list merch", test_list_merch))||*/
-    
-    /*(NULL == CU_add_test(store_test_suite1, "test ht_to_list", test_ht_to_list))||*/
     
     (NULL == CU_add_test(store_test_suite1, "test ioopm_remove_merch", test_remove_merch))|| 
   

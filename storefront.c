@@ -147,16 +147,25 @@ void ioopm_remove_cart_interface(warehouse_t *warehouse)
 {
   make_spacing;
   int id = ask_question_int("Which cart do you wish to remove?:  ");
-  cart_t *cart;
-  bool result = get_cart(warehouse, id, &cart);
+  bool result = ioopm_remove_cart(warehouse->carts, id);
   if(result)
   {
-    ioopm_remove_cart(warehouse, cart);
+    printf("The cart with ID: %d has been remover.", id);
   }
   else
   {
-  printf("The cart remove was not successful. \n");
+    printf("The cart remove was not successful. \n");
   }
+  // cart_t *cart;
+  // bool result = get_cart(warehouse, id, &cart);
+  // if(result)
+  // {
+  //   ioopm_remove_cart(warehouse, cart);
+  // }
+  // else
+  // {
+  // printf("The cart remove was not successful. \n");
+  // }
 
   make_spacing;
 }
@@ -221,7 +230,7 @@ void ioopm_checkout_cart_interface(warehouse_t *warehouse)
   {
     ioopm_checkout_cart(warehouse, cart);
     printf("The cart id:%ld was checked out!\n", cart->id);
-    remove_cart(warehouse->carts, id);
+    ioopm_remove_cart(warehouse->carts, id);
   }
   else
   {

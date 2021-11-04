@@ -141,7 +141,6 @@ static void free_all_carts(warehouse_t *warehouse)
             free(current_cart);
         }
         ioopm_iterator_destroy(iter_carts);
-
 }
 
 
@@ -180,11 +179,11 @@ cart_t *ioopm_cart_create(warehouse_t *warehouse)
     return cart;
 }
 
-void ioopm_remove_cart(warehouse_t *warehouse, cart_t *cart)
-{
-    ioopm_hash_table_destroy(cart->items);
-    ioopm_linked_list_remove(warehouse->carts, int_elem(cart->id));
-}
+// void ioopm_remove_cart(warehouse_t *warehouse, cart_t *cart)
+// {
+//     ioopm_hash_table_destroy(cart->items);
+//     ioopm_linked_list_remove(warehouse->carts, int_elem(cart->id));
+// }
 
 merch_t *create_merch(int id, char *name, char *desc, size_t price)
 {
@@ -604,7 +603,10 @@ bool ioopm_remove_from_cart(warehouse_t *warehouse, cart_t *cart, char *merch_na
 
     bool result = ioopm_hash_table_lookup(cart->items, ptr_elem(merch_name), &to_check_quantity);
 
-    if(quantity < 1 || quantity < merch->unused_stock ||  quantity > (size_t)to_check_quantity.func_point ||!result)/*!ioopm_hash_table_lookup(cart->items, ptr_elem(merch_name), &to_check_quantity)*/
+    if(quantity < 1 || 
+       /*quantity < merch->unused_stock ||*/ //<---FIXME: konstig, tror jag, if not then explain
+       quantity > (size_t)to_check_quantity.func_point || //FIXME: kan den ens vara över merchens quantity?
+       !result)                                                             /*!ioopm_hash_table_lookup(cart->items, ptr_elem(merch_name), &to_check_quantity)*/
     {
         return false;
     }
@@ -790,7 +792,7 @@ bool ioopm_list_carts(warehouse_t *warehouse)
     return true;
 }
 
-bool remove_cart(ioopm_list_t *carts, int cart_id)
+bool ioopm_remove_cart(ioopm_list_t *carts, int cart_id)
 {
     if(ioopm_linked_list_is_empty(carts))
     {
