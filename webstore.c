@@ -214,7 +214,7 @@ bool ioopm_add_merch(warehouse_t *warehouse, char *name, char *desc, size_t pric
     elem_t elem_ignored;
     if(ioopm_hash_table_lookup(warehouse->items, ptr_elem(name), &elem_ignored))
     {
-        printf("hej");
+        printf("\nA merchandise with this name already exists.\n");
         return false;
     }
     else
@@ -761,7 +761,8 @@ void print_carts (warehouse_t *warehouse)
                     }
                     ioopm_linked_list_destroy(item_keys);
                     ioopm_linked_list_destroy(item_quantities);   
-            }   
+            }
+            i++;
         }
         while (ioopm_iterator_has_next(iter_carts))
                 {
@@ -769,7 +770,7 @@ void print_carts (warehouse_t *warehouse)
                     current_cart = ioopm_iterator_current(iter_carts).func_point;
                     if(current_cart->id != 0)
                     {
-                        printf(" \n Cart no.%d - ID: %d\n",i + 1, current_cart->id);
+                        printf(" \n Cart no.%d - ID: %d\n",i, current_cart->id);
                         item_keys = ioopm_hash_table_keys(current_cart->items);
                         item_quantities = ioopm_hash_table_values(current_cart->items);
                         if(!ioopm_hash_table_is_empty(current_cart->items))

@@ -331,14 +331,19 @@ void test_cart_cost()
   ioopm_add_merch(warehouse, "stol", "trä", 13);
 
   cart_t *cart = ioopm_cart_create(warehouse);
+  cart_t *cart2 = ioopm_cart_create(warehouse);
 
   ioopm_replenish_stock(warehouse, "bord", "b12", 15);
   ioopm_replenish_stock(warehouse, "stol", "b13", 11);
   ioopm_add_to_cart(warehouse, cart, "bord", 12);
   ioopm_add_to_cart(warehouse, cart, "stol", 11);
+  ioopm_add_to_cart(warehouse, cart2, "bord", 3);
 
   size_t total_price = ioopm_calc_cost_cart(warehouse, cart);
   CU_ASSERT_EQUAL(total_price, 299);
+
+  total_price = ioopm_calc_cost_cart(warehouse, cart2);
+  CU_ASSERT_EQUAL(total_price, 39);
 
   ioopm_remove_cart(warehouse, 1);
 
