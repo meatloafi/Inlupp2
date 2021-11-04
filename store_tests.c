@@ -228,7 +228,7 @@ void test_replenish()
   ioopm_add_merch(warehouse, "second merchandise", "test desc", 40);
   // cart_t *cart1 = ioopm_cart_create(warehouse);
   // cart_t *cart2 = ioopm_cart_create(warehouse);
-  
+
   ioopm_replenish_stock(warehouse, "first item", "B45", 20);
   ioopm_replenish_stock(warehouse, "first item", "B45", 10);
   ioopm_replenish_stock(warehouse, "second merchandise", "A12", 40);
@@ -247,7 +247,7 @@ void test_replenish()
   ioopm_list_t *shelves_item2 = item2->location;
 
 
-  
+
 
   ioopm_warehouse_destroy(warehouse);
 }

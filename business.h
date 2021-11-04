@@ -64,7 +64,7 @@ bool ioopm_remove_merch(warehouse_t *warehouse, char *merch_name);
 /// @param new_desc The new description of the merchandise
 /// @param new_price The new price of the merchanise
 /// @return The edited merchandise TODO:
-bool ioopm_edit_merch(warehouse_t *warehouse, char *merch, char *new_name, char *new_desc, size_t new_price);
+bool ioopm_edit_merch(warehouse_t *warehouse, char *merch, char *new_name, char *new_desc, size_t new_price, ioopm_list_t *edit_list);
 
 /// @brief Lists where the item is stored as well as the quantity of it in each storage location
 /// @param warehouse The warehouse where the merchandise is stored
@@ -86,7 +86,7 @@ ioopm_hash_table_t ioopm_create_cart(ioopm_hash_table_t *cart);
 /// @param cart Shopping cart to be removed
 void ioopm_remove_cart(warehouse_t *warehouse, cart_t *cart);
 
-
+bool remove_cart(ioopm_list_t *carts, int cart_id);
 bool get_cart(warehouse_t *warehouse, int cart_id, cart_t **cart);
 
 /// @brief Adds a quantity of merchandise to the cart

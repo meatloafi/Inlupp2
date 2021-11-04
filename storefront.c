@@ -132,7 +132,7 @@ void ioopm_add_cart_interface(ioopm_list_t *strdup_list, warehouse_t *warehouse)
     char *name = ask_question_string("What merchendise do you want to add?: ");
     int quantity = ask_question_int("What quantity of the merch do you want to add?: ");
     ioopm_linked_list_append(strdup_list, ptr_elem(name));
-    ioopm_add_to_cart(warehouse, cart, strdup(name), quantity);
+    ioopm_add_to_cart(warehouse, cart, name, quantity);
   }
   else
   {
@@ -220,6 +220,7 @@ void ioopm_checkout_cart_interface(warehouse_t *warehouse)
   {
     ioopm_checkout_cart(warehouse, cart);
     printf("The cart id:%ld was checked out!\n", cart->id);
+    remove_cart(warehouse->carts, id);
   }
   else
   {
@@ -251,7 +252,7 @@ void print_options_menu()
 
 #define name_merch(x) (merch_t) { .name=(x) }
 
-void event_loop(ioopm_list_t *strdup_list, warehouse_t *warehouse)
+void event_loop(ioopm_list_t *edit_list, ioopm_list_t *strdup_list, warehouse_t *warehouse)
 {
   print_options_menu();
   
@@ -286,7 +287,7 @@ void event_loop(ioopm_list_t *strdup_list, warehouse_t *warehouse)
           case 4:
           merch_name = ask_question_string("Which merchendise would you like to edit? \n");
           ioopm_linked_list_append(strdup_list, ptr_elem(merch_name));
-          ioopm_edit_merch_interface(strdup_list, warehouse, merch_name);
+          ioopm_edit_merch_interface(strdup_list, warehouse, merch_name, edit_list);
           ioopm_list_merch(warehouse);
 
           break;
@@ -387,8 +388,9 @@ void duplicate_destroy(ioopm_list_t *strdup_list)
 int main(int argc, char *argv[])
 {
   ioopm_list_t *strdup_list = ioopm_linked_list_create(NULL);
+  ioopm_list_t *edit_list = ioopm_linked_list_create(NULL);
   warehouse_t *warehouse = ioopm_warehouse_create();
-  event_loop(strdup_list, warehouse);
+  event_loop(edit_list, strdup_list, warehouse);
   duplicate_destroy(strdup_list);
   ioopm_linked_list_destroy(strdup_list);
   ioopm_warehouse_destroy(warehouse);
