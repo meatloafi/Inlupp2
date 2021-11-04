@@ -316,6 +316,10 @@ bool ioopm_edit_merch(warehouse_t *warehouse, char *merch_name, char *new_name, 
     updated_merch->location = current_merch->location;
     updated_merch->total_stock = current_merch->total_stock;
     updated_merch->lock = false;
+
+    elem_t prev_merch_to_free;
+    ioopm_hash_table_lookup(warehouse->items, ptr_elem(merch_name), &prev_merch_to_free);
+    free(prev_merch_to_free.func_point);
     ioopm_hash_table_remove(warehouse->items, ptr_elem(merch_name));
     ioopm_hash_table_insert(warehouse->items, ptr_elem(new_name), ptr_elem(updated_merch));
 

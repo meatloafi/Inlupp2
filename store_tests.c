@@ -262,7 +262,7 @@ void test_add_to_cart()
   ioopm_replenish_stock(warehouse, "test name", "b12", 15);
   ioopm_replenish_stock(warehouse, "test name2", "b13", 11);
   ioopm_add_to_cart(warehouse, cart, "test name", 12);
-  ioopm_add_to_cart(warehouse, cart2, "test name", 12);
+  ioopm_add_to_cart(warehouse, cart2, "test name", 2);
   ioopm_add_to_cart(warehouse, cart2, "test name2", 11);
 
   result = ioopm_hash_table_is_empty(cart->items);
