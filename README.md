@@ -62,6 +62,8 @@ Usage
 
 1. For running the store : "./store"
 
+2. For running the tests : "./test"
+
 3. For memory testing of store with inputs run the following : "make ./memtest-store"
 
 4. For memory testing of stores tests : "make ./memtest-test"

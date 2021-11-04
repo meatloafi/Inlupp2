@@ -26,16 +26,37 @@ typedef struct shelf shelf_t;
 
 #define make_spacing  printf("\n----------------------------------------------------------\n")
 
+/// @brief 
+/// @param 
+/// @param 
+/// @param 
+/// @param 
+/// @return
 merch_t *create_merch(int id, char *name, char *desc, size_t price);
 
+/// @brief 
+/// @return
 warehouse_t *ioopm_warehouse_create();
 
+/// @brief 
+/// @param 
+/// @return
 void ioopm_warehouse_destroy();
 
+/// @brief 
+/// @param 
+/// @return
 cart_t *ioopm_cart_create(warehouse_t *warehouse);
 
+/// @brief 
+/// @param 
+/// @return
 shelf_t *create_shelf(char *shelf_name);
 
+/// @brief 
+/// @param 
+/// @param 
+/// @return
 void key_array_destroy(char **keys, size_t size);
 
 /// @brief Adds a new item to the warehouse
@@ -49,6 +70,10 @@ bool ioopm_add_merch(warehouse_t *warehouse, char *name_sd, char *desc_sd, size_
 /// @return prints 20 items at a time, the user can continue to print the next 20 items
 void ioopm_list_merch(warehouse_t *warehouse);
 
+/// @brief 
+/// @param 
+/// @param 
+/// @return
 merch_t *merch_get(warehouse_t *warehouse, char *merch_name);
 
 /// @brief Completely removes an item from the warehouse
@@ -87,6 +112,11 @@ ioopm_hash_table_t ioopm_create_cart(ioopm_hash_table_t *cart);
 // void ioopm_remove_cart(warehouse_t *warehouse, cart_t *cart);
 bool ioopm_remove_cart(warehouse_t *warehouse, int cart_id);
 
+/// @brief 
+/// @param 
+/// @param 
+/// @param 
+/// @return
 bool get_cart(warehouse_t *warehouse, int cart_id, cart_t **cart);
 
 /// @brief Adds a quantity of merchandise to the cart
@@ -113,8 +143,11 @@ size_t ioopm_calc_cost_cart(warehouse_t *warehouse, cart_t *cart);
 void ioopm_checkout_cart(warehouse_t *warehouse, cart_t *cart);
 
 /// @brief Quits the program.
-void ioopm_quit(); 
+void ioopm_quit();
 
+/// @brief 
+/// @param 
+/// @return
 bool ioopm_list_carts(warehouse_t *warehouse);
 /*
 /// @brief OPTIONAL Undos an action.
