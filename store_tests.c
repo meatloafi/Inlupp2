@@ -360,7 +360,7 @@ void test_cart_checkout()
   cart_t *cart = ioopm_cart_create(warehouse);
 
   ioopm_replenish_stock(warehouse, "bord", "b12", 15);
-  ioopm_replenish_stock(warehouse, "stol", "b13", 11);
+  ioopm_replenish_stock(warehouse, "stol", "b15", 11);
   ioopm_add_to_cart(warehouse, cart, "bord", 12);
   ioopm_add_to_cart(warehouse, cart, "stol", 11);
 

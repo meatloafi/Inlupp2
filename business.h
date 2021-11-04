@@ -86,6 +86,7 @@ ioopm_hash_table_t ioopm_create_cart(ioopm_hash_table_t *cart);
 /// @param cart Shopping cart to be removed
 void ioopm_remove_cart(warehouse_t *warehouse, cart_t *cart);
 
+bool remove_cart(ioopm_list_t *carts, int cart_id);
 
 bool get_cart(warehouse_t *warehouse, int cart_id, cart_t **cart);
 

@@ -221,6 +221,7 @@ void ioopm_checkout_cart_interface(warehouse_t *warehouse)
   {
     ioopm_checkout_cart(warehouse, cart);
     printf("The cart id:%ld was checked out!\n", cart->id);
+    remove_cart(warehouse->carts, id);
   }
   else
   {
