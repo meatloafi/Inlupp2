@@ -392,8 +392,6 @@ void test_cart_checkout()
   CU_ASSERT_EQUAL(size, 0);
 
   ioopm_remove_cart(warehouse->carts, 1);
-  size_t carts_quantity = ioopm_linked_list_size(warehouse->carts);
-  CU_ASSERT_EQUAL(carts_quantity, 0);
 
   ioopm_warehouse_destroy(warehouse);
 

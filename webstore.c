@@ -388,7 +388,6 @@ bool ioopm_show_stock(warehouse_t *warehouse, char *merch_name) //original
         printf("The merchandise named %s could not be found.\n", merch_name);
         return false;
     }
-    //elem_t value;
     merch_t *current_merch = to_show.func_point;
 
     if(ioopm_linked_list_is_empty(current_merch->location))
