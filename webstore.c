@@ -179,12 +179,6 @@ cart_t *ioopm_cart_create(warehouse_t *warehouse)
     return cart;
 }
 
-// void ioopm_remove_cart(warehouse_t *warehouse, cart_t *cart)
-// {
-//     ioopm_hash_table_destroy(cart->items);
-//     ioopm_linked_list_remove(warehouse->carts, int_elem(cart->id));
-// }
-
 merch_t *create_merch(int id, char *name, char *desc, size_t price)
 {
     merch_t *merchandise = calloc(1, sizeof(merch_t));

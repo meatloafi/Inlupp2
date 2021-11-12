@@ -24,6 +24,8 @@ typedef struct cart cart_t;
 /// @brief The shelf is the storage space for a merchandise and is itself a link in a linked list.
 typedef struct shelf shelf_t;
 
+#define make_spacing  printf("\n----------------------------------------------------------\n")
+
 /// @brief Creates a merchendise
 /// @param id the merchendise id
 /// @param name the merchendise name
